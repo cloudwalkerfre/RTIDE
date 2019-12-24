@@ -2,7 +2,7 @@ import React from "react"
 import { observer } from 'mobx-react-lite'
 import Editor, {monaco} from "@monaco-editor/react"
 import { useStore } from '../../hooks/useStore'
-import { Button } from 'rsuite'
+import { ReactSVG } from 'react-svg'
 
 const OperationBar = observer(() => {
     const store = useStore()
@@ -18,9 +18,15 @@ const OperationBar = observer(() => {
             <div
                 className='operation-bar'
             >
-                <Button appearance="default" size='sm' onClick={ handleRunPython } disabled={ !store.py.isPyodideReady }>
-                    Run Python
-                </Button>
+                { store.py.isPyodideReady ? 
+                    <>
+                          Run Python   
+                        <ReactSVG src='icons/start.svg' onClick={ handleRunPython } />
+                    </> :
+                    <>
+                          Python loading...
+                    </>
+                }
             </div>
         )
     }

@@ -31,8 +31,15 @@ code {
   border-right-width: 10px;
 }
 
-.file-subfolder{
+.subfolder{
   margin-left: 10px;
+  /* border-left: outset;
+  border-left-width: 1px;
+  border-left-style: solid;
+  border-left-color: rgb(155, 151, 151); */
+}
+
+.subfolder:hover {
   border-left: outset;
   border-left-width: 1px;
   border-left-style: solid;
@@ -82,9 +89,26 @@ code {
 
 .file-handle {
   height: 30px;
-  padding: 3px 3px 3px 10px;
-  color: blanchedalmond;
-  font-size: medium;
+  display: flex;
+}
+
+.file-handle-text {
+  margin-left: 10px;
+  height: 30px;
+  vertical-align: middle;
+  line-height: 30px;
+  width: 130px;
+  color: white;
+  font-size: small;
+}
+
+.file-handle .injected-svg{
+  size: 16px;
+  margin: 7px 0px 7px 0px;
+}
+
+.injected-svg {
+  margin: 0px 0px 0px 2px; 
 }
 
 .footer {
@@ -98,18 +122,50 @@ code {
   background-color: rgb(40, 44, 52);
 }
 
-.file-nametag {
-  font-size: medium;
-  color: rgb(114, 200, 144);
+.file-tag {
   line-height: 1.2em;
-  padding: 0px 0px 0px 5px;
+  padding: 0px 0px 0px 18px;
+  display: flex;
 }
 
-.file-nametag:hover {
+.file-tag:hover {
   background-color:rgb(40, 44, 52);
   cursor: pointer;
 }
 
+.folder-tag {
+  line-height: 1.2em;
+  padding: 0px;
+  display: flex;
+}
+
+.folder-tag:hover {
+  background-color:rgb(40, 44, 52);
+  cursor: pointer;
+}
+
+.file-name-tag {
+  margin-left: 5px;
+  font-size: medium;
+  color: rgb(204, 204, 204);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.operation-bar {
+  margin-left: 10px;
+  display: flex;
+  font-size: small;
+  color: rgb(204, 204, 204);
+  flex: auto;
+  vertical-align: middle;
+  horizontal-align: middle;
+  line-height: 30px;
+}
+
+.operation-bar .injected-svg{
+  margin: 7px 0px 7px 0px;
+}
 /*
 .header {
   text-align: center;

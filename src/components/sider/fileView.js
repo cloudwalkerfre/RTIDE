@@ -2,33 +2,40 @@ import React from "react"
 import { observer } from 'mobx-react-lite'
 import { useStore } from '../../hooks/useStore'
 import { regexFileType } from '../../util/util'
-import FileIcon, { defaultStyles } from 'react-file-icon';
+import { ReactSVG } from 'react-svg'
 
 const FileView = observer(() => {
     const store = useStore()
 
-    const NameTag = (file) => {
+    const NameTag = ({ file, className }) => {
         return (
             <div
                 key={Math.random()}
-                className='file-nametag'
+                className={ className } 
                 onClick={() => {
                     if(file.type === 'file'){
                         store.file.monoOpen(file.path + '/' + file.name)}
                     }
                 }
             >
-                { IconTag(file) }
-                { file.name }
+                <IconTag file={ file } />
+                <div className='file-name-tag' >
+                    { file.name }
+                </div>
             </div>
         )
     }
 
-    const IconTag = (file) => {
+    const IconTag = ({ file }) => {
         if(file.type === 'dir'){
-            return <FileIcon extension="folder" type='code' size={20} color='aliceblue' {...defaultStyles.code} />
+            return (
+                <>
+                    <ReactSVG src='icons/chevron-down.svg' />
+                    <ReactSVG src='icons/folder.svg' />
+                </>
+            )
         }else{
-            return <FileIcon extension={ regexFileType(file.name) || 'file' } type='code' size={20} color='aliceblue' {...defaultStyles.code} />
+            return <ReactSVG src='icons/file.svg' />
         }
     }
 
@@ -36,8 +43,8 @@ const FileView = observer(() => {
         if(files.type === 'dir'){
             return (
                 <div key={Math.random()} className='dir'>
-                    { NameTag(files) }
-                    <div className='file-subfolder'>
+                    <NameTag file={ files } className='folder-tag' />
+                    <div className='subfolder'>
                         {files.children.map(c =>
                             FileRecur(c)
                         )}
@@ -47,7 +54,7 @@ const FileView = observer(() => {
         }else if(files.type === 'file'){
             return (
                 <div key={Math.random()} className={files.type}>
-                    { NameTag(files) }
+                    <NameTag file={ files } className='file-tag' />
                 </div>
             )
         }
