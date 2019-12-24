@@ -1,0 +1,41 @@
+{
+    "bin": {
+        "sh": null
+    },
+    "boot": {
+        "kernel.js": null
+    },
+    "index.json": null,
+    "usr": {
+        "bin": {
+            "cat": null,
+            "cp": null,
+            "curl": null,
+            "echo": null,
+            "exec": null,
+            "grep": null,
+            "head": null,
+            "hello": null,
+            "hello-socket": null,
+            "http-example": null,
+            "ld": null,
+            "ls": null,
+            "node": null,
+            "mkdir": null,
+            "pipeline-example": null,
+            "rm": null,
+            "rmdir": null,
+            "sh": null,
+            "sha1sum": null,
+            "socket-example": null,
+            "sort": null,
+            "stat": null,
+            "tail": null,
+            "tee": null,
+            "touch": null,
+            "treejson": null,
+            "wc": null,
+            "xargs": null
+        }
+    }
+}

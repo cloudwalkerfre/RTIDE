@@ -1,0 +1,82 @@
+#!/usr/bin/env node
+'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
+const fs = require('fs')
+const path = require('path')
+
+/* 默认browsix base为-> / */
+const p = '/'
+
+const output = (s) => {
+    process.stdout.write(s + '\n', 'utf-8', function (werr) {
+        if (werr) {
+            code = -1
+            process.stderr.write(werr, ()=>process.exit(code))
+            return
+        }
+        // done()
+    })
+}
+
+const done = () => {
+    process.exit(0)
+}
+
+const fileHandle = (files) => {
+    return files.filter(file => file.length && file[0] !== '.')
+}
+
+const main = async () => {
+    let code = 0
+
+    const ReadDir = (path) => new Promise((res, rej) => {
+        fs.readdir(path, (err, files) => {
+            if(err){
+                rej(err)
+            }
+            res(files)
+        })
+    })
+
+    const isDir = (path) => new Promise((res, rej) => {
+        fs.stat(path, (err, stat) => {
+            if(err){
+                rej(err)
+            }
+            res(stat.isDirectory())
+        })
+    })
+
+    /*
+        asyncForEach 参考 https://codeburst.io/javascript-async-await-with-foreach-b6ba62bbf404
+        嵌套不深的情况下速度还行 主要用作输出JSON 给主线程React初始化创建RTIDE Folder时做依据 除此之外基本用不着
+    */
+    const asyncForEach = async (array, callback) => {
+        for (let index = 0; index < array.length; index++) {
+          await callback(array[index]);
+        }
+    }
+
+    const loop = async (PATH) => {
+        const tree = {path: path.dirname(PATH), name: path.basename(PATH)}
+        if(await isDir(PATH)){
+            tree.type = 'dir'
+            const deeper = async () => {
+                const children = []
+                await asyncForEach(fileHandle(await ReadDir(PATH)), async (child) => {
+                    children.push(await loop(path.join(PATH, child)))
+                })
+                return children
+            }
+            tree.children = await deeper()
+        }else{
+            tree.type = 'file'
+        }
+        return tree
+    }
+
+    const re = await loop(p)
+    output(JSON.stringify(re))
+    done()
+}
+main()

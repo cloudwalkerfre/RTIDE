@@ -1,0 +1,117 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.App {
+  height: 100vh;
+  /* max-height: 100%;
+  min-height: 500px; */
+  /* max-width: 100%;
+  min-width: 100%; */
+  overflow: hidden;
+  /* position: fixed; */
+}
+
+.sidebar {
+  max-width: 200px;
+  height: 100vh;
+  overflow: scroll;
+  border-right-style: solid;
+  border-right-color: rgb(40, 44, 52);
+  border-right-width: 10px;
+}
+
+.file-subfolder{
+  margin-left: 10px;
+  border-left: outset;
+  border-left-width: 1px;
+  border-left-style: solid;
+  border-left-color: rgb(155, 151, 151);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: auto;
+  background-color: rgb(40, 44, 52);
+}
+
+.operation-bar {
+  height: 30px;
+}
+
+.workspace {
+  display: felx;
+  flex-direction: column;
+  flex: auto;
+}
+
+.header {
+  height: 30px;
+  text-align: center;
+  background-color: rgb(40, 44, 52);
+}
+
+.terminal-container {
+  border-top-width: 10px;
+  border-top-style: solid;
+  border-top-color: rgb(40, 44, 52);
+  display: flex;
+  height: 190px;
+}
+
+.xterm {
+  height: 180px;
+}
+
+.fileview {
+  height: calc(100% - 270px);
+  overflow: scroll;
+  background-color: rgb(32, 33, 36);
+}
+
+.file-handle {
+  height: 30px;
+  padding: 3px 3px 3px 10px;
+  color: blanchedalmond;
+  font-size: medium;
+}
+
+.footer {
+  height: 20px;
+  /* border-top-style: solid; */
+  text-align: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgb(40, 44, 52);
+}
+
+.file-nametag {
+  font-size: medium;
+  color: rgb(114, 200, 144);
+  line-height: 1.2em;
+  padding: 0px 0px 0px 5px;
+}
+
+.file-nametag:hover {
+  background-color:rgb(40, 44, 52);
+  cursor: pointer;
+}
+
+/*
+.header {
+  text-align: center;
+  border-bottom-style: solid;
+} */
