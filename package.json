@@ -1,0 +1,54 @@
+{
+  "name": "rtide",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@bnaya/objectbuffer": "^0.10.0",
+    "@loopmode/xpty": "^0.5.7",
+    "@monaco-editor/react": "^2.3.0",
+    "ansi-escape-sequences": "^5.1.2",
+    "browserfs": "^1.4.3",
+    "browsix": "^0.9.2",
+    "comlink": "^4.1.0",
+    "dompurify": "^2.0.7",
+    "graphql": "^14.5.8",
+    "graphql-request": "^1.8.2",
+    "graphql-tag": "^2.10.1",
+    "mobx": "^5.15.0",
+    "mobx-react-lite": "^1.5.1",
+    "mobx-state-tree": "^3.15.0",
+    "mst-gql": "^0.7.0",
+    "nedb": "^1.8.0",
+    "programing-language-names": "^2.0.8",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-file-icon": "^0.2.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.2.0",
+    "rsuite": "^4.1.5",
+    "xterm": "^4.2.0-vscode1",
+    "xterm-addon-fit": "^0.3.0",
+    "xterm-addon-web-links": "^0.2.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
