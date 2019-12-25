@@ -9,7 +9,7 @@ const NameTag = observer(({ file, className }) => {
     return (
         <div
             key={Math.random()}
-            className={ file.isOpen ? className + ' name-tag-hover' : className }
+            className={ file.isCurrent ? className + ' name-tag-hover' : className }
             onClick={() => store.file.handleClick(file) }
         >
             <IconTag file={ file } />

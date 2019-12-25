@@ -248,11 +248,31 @@ const osStore = types
             if(cmd !== null && cmd !== ''){
                 kernel.system(
                     cmd,
-                    (pid, code) =>
-                        {/*onExit(pid, code, self.cwd)*/},
+                    (pid, code) => {
+                        /*onExit(pid, code, self.cwd)*/
+                    },
                     (pid, out) => {
                         // onStdout(pid, out)
                         callback(out)
+                    },
+                    onStderr,
+                    onHaveStdin
+                )
+            }else{
+                xterm.writeln('')
+                xterm.write(self.cwd)
+            }
+        },
+        exeExitback(cmd, callback){
+            if(cmd !== null && cmd !== ''){
+                kernel.system(
+                    cmd,
+                    (pid, code) =>{
+                        /*onExit(pid, code, self.cwd)*/
+                        callback()
+                    },
+                    (pid, out) => {
+                        // onStdout(pid, out)
                     },
                     onStderr,
                     onHaveStdin

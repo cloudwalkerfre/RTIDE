@@ -12,9 +12,11 @@ const FileHandle = () => {
             >
                 {/* <ReactSVG src='icons/chevron-down.svg' /> */}
                 <div className='file-handle-text' >RTIDE</div>
+                {/* /TODO */}
                 <ReactSVG src='icons/new-file.svg' />
-                <ReactSVG src='icons/new-folder.svg' />
-                <ReactSVG src='icons/collapse-all.svg' />
+                <ReactSVG src='icons/new-folder.svg' onClick={ store.file.mkdir } />
+                <ReactSVG src='icons/refresh.svg' onClick={ store.file.refresh } />
+                <ReactSVG src='icons/collapse-all.svg' onClick={ store.file.collapseAll } />
             </div>
         )
     }

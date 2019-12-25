@@ -1,4 +1,4 @@
-import { types, getEnv, getRelativePath, resolvePath } from "mobx-state-tree"
+import { types, getEnv, getRelativePath, resolvePath, getSnapshot } from "mobx-state-tree"
 
 /*
     There should be a better name for this, directory is kind of missleading,
@@ -10,8 +10,9 @@ const directory = types
         name: types.string,
         path: types.string,
         type: types.string,
+        isCurrent: false,
         isOpen: false,
-        isExpend: true,
+        isExpend: false,
         children: types.optional(types.array(types.late(() => directory)), [])
     })
 
@@ -20,7 +21,8 @@ const fileStore = types
         directory: types.maybe(directory),
         fileStoreReady: false,
         // currentOpen: '',
-        lastOpen: ''
+        lastClick: '',
+        folderExpandCollec: types.array(types.string)
     })
     .actions(self => ({
         setDirectory(tree){
@@ -35,24 +37,74 @@ const fileStore = types
             return self.fileStoreReady
         },
         handleClick(file){
+            const jsonPath = getRelativePath(self.directory, file)
             if(file.type === 'file'){
-                if(self.lastOpen !== getRelativePath(self.directory, file)){
+                if(self.lastClick !== jsonPath){
                     const ev = getEnv(self)
                     ev.os.exeCallback('cat '+ file.path + '/' + file.name, (string) => ev.editor.newMono(string, file.path))
-                    file.isOpen = true
-                    if(file.lastOpen !== ''){
-                        resolvePath(self.directory, self.lastOpen).isOpen = false
+                    file.isCurrent = true
+                    if(file.lastClick !== ''){
+                        resolvePath(self.directory, self.lastClick).isCurrent = false
                     }
-                    self.lastOpen = getRelativePath(self.directory, file)
+                    self.lastClick = jsonPath
+                    file.isOpen = true
                 }
             }else{
-                file.isOpen = !file.isOpen
-                file.isExpend = !file.isExpend
-                if(file.lastOpen !== ''){
-                    resolvePath(self.directory, self.lastOpen).isOpen = false
+                if(self.lastClick !== jsonPath){
+                    file.isCurrent = !file.isCurrent
+                    if(file.lastClick !== ''){
+                        resolvePath(self.directory, self.lastClick).isCurrent = false
+                    }
+                    self.lastClick = jsonPath
                 }
-                self.lastOpen = getRelativePath(self.directory, file)
+                file.isExpend = !file.isExpend
+                if(file.isExpend){
+                    self.folderExpandCollec.push(jsonPath)
+                }else{
+                    const index = self.folderExpandCollec.indexOf(jsonPath)
+                    if(index !== -1){
+                        self.folderExpandCollec.splice( index, 1 )
+                    }
+                }
             }
+        },
+        refresh(){
+            const ev = getEnv(self)
+            self.fileStoreReady = false
+            const tmpExpands = getSnapshot(self.folderExpandCollec)
+            const tmpCurrent = self.lastClick
+            ev.os.exeCallback('treejson', (tree) => {
+                self.setDirectory(tree)
+                self.setFolderExpand(tmpExpands)
+                self.setDirectoryReady()
+                self.setLastClick(tmpCurrent)
+            })
+        },
+        /* TODO */
+        mkdir(){
+            const dirPathName = 'home/' + 'tmpdir'
+            const ev = getEnv(self)
+            self.fileStoreReady = false
+            ev.os.exeExitback('mkdir ' + dirPathName, self.refresh)
+        },
+        collapseAll(){
+            self.folderExpandCollec.forEach(c => {
+                resolvePath(self.directory, c).isExpend = false
+            })
+            resolvePath(self.directory, self.lastClick).isCurrent = false
+        },
+        setFolderExpand(expands){
+            self.folderExpandCollec = expands
+            self.folderExpandCollec.forEach(c => {
+                resolvePath(self.directory, c).isExpend = true
+            })
+        },
+        setDirectoryReady(){
+            self.isFileStoreReady = true
+        },
+        setLastClick(last){
+            self.lastClick = last
+            resolvePath(self.directory, last).isCurrent = true
         }
     }))
 
