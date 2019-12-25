@@ -25,7 +25,7 @@ code {
 .sidebar {
   max-width: 200px;
   height: 100vh;
-  overflow: scroll;
+  overflow: hidden;
   border-right-style: solid;
   border-right-color: rgb(40, 44, 52);
   border-right-width: 10px;
@@ -85,10 +85,30 @@ code {
   height: 180px;
 }
 
+.xterm-viewport::-webkit-scrollbar {
+  width: 10px;
+}
+
+.xterm-viewport::-webkit-scrollbar-thumb {
+  background:rgb(50, 56, 66);
+}
+
 .fileview {
   height: calc(100% - 270px);
-  overflow: scroll;
+  overflow: hidden;
   background-color: rgb(32, 33, 36);
+}
+
+.fileview:hover {
+  overflow-y: scroll;
+}
+
+.fileview::-webkit-scrollbar {
+  width: 10px;
+}
+
+.fileview::-webkit-scrollbar-thumb {
+  background:rgb(50, 56, 66);
 }
 
 .file-handle {
@@ -112,7 +132,7 @@ code {
 }
 
 .injected-svg {
-  margin: 0px 0px 0px 2px; 
+  margin: 0px 0px 0px 2px;
 }
 
 .footer {
@@ -159,6 +179,25 @@ code {
   overflow: hidden;
   white-space: nowrap;
 }
+
+.name-tag-edit {
+  height: inherit;
+  padding: 0px;
+  border: 1px;
+  border-color: grey;
+  border-style: solid;
+  background:rgb(50, 56, 66);
+  outline: none;
+}
+
+/* .name-tag-edit:focus {
+  height: inherit;
+  padding: 0px;
+  border: 1px;
+  border-color: grey;
+  border-style: solid;
+  background:rgb(50, 56, 66);
+} */
 
 .operation-bar {
   margin-left: 10px;

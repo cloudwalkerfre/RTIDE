@@ -291,7 +291,7 @@ const osStore = types
             }
         },
         isOSXtermReady(){
-            return self.isKernelReady && self.isKernelReady
+            return self.isKernelReady && self.isXtermReady
         },
         keyCallback({key, domEvent}){
             if(!self.isOSXtermReady()){
