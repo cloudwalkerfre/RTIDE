@@ -1,4 +1,4 @@
-import { types, getEnv, getRelativePath, resolvePath, getSnapshot, getParent, tryResolve } from "mobx-state-tree"
+import { types, getEnv, getRelativePath, resolvePath, getSnapshot, getParent } from "mobx-state-tree"
 
 /*
     There should be a better name for this, directory is kind of missleading,
@@ -7,6 +7,7 @@ import { types, getEnv, getRelativePath, resolvePath, getSnapshot, getParent, tr
 
     TODO:
         - better comment
+        - rename path to pwd in directory and browsix/usr/bin/treejson
         - handle blur while mkdir
         - handle fresh after file operation made in terminal
             - option 1: set flag, don't do folder expand after terminal operation
@@ -14,8 +15,10 @@ import { types, getEnv, getRelativePath, resolvePath, getSnapshot, getParent, tr
             fuck me...
         - new file
         - scroll to node after refresh
+        - error try catch
         - first time writting file folder, what a mess...
         - reorganize when all things settled
+        - Notification for illegal dirname input, ex: dirname start with number bring render issue
 */
 
 let FileViewRef
@@ -109,7 +112,7 @@ const fileStore = types
                 self.mkdirLastClick = self.lastClick
                 if(LastClickNode.type === 'file'){
                     PATH = LastClickNode.path
-                    PARENT = getParent(resolvePath(self.directory, self.lastClick))
+                    PARENT = getParent(LastClickNode)
                 }else{
                     PATH = LastClickNode.path + '/' + LastClickNode.name
                     PARENT = LastClickNode.children
@@ -147,12 +150,25 @@ const fileStore = types
         mkdir2(e){
             if(e.keyCode === 13 && e.target.value !== ''){
                 const tmpDir = e.target.value
+                /*
+                    dirname start with number bring render issue
+                    TODO: Notification
+                */
+                if(tmpDir.match(/^\d{1}/g) !== null){
+                    const tmpDirNode = resolvePath(self.directory, self.lastClick)
+                    const PARENT = getParent(tmpDirNode)
+                    PARENT.pop()
+                    self.folderExpandCollec.pop()
+                    self.lastClick = self.mkdirLastClick
+                    resolvePath(self.directory, self.lastClick).isCurrent = true
+                    return
+                }
                 const tmpDirNode = resolvePath(self.directory, self.lastClick)
                 const dirPathName = tmpDirNode.path + '/' + tmpDir
                 tmpDirNode.isEdit = false
 
                 const ev = getEnv(self)
-                self.fileStoreReady = false
+                // self.fileStoreReady = false
                 ev.os.exeExitback('mkdir ' + dirPathName, self.refresh)
             }else if(e.keyCode === 27){
                 const tmpDirNode = resolvePath(self.directory, self.lastClick)

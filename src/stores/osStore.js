@@ -187,6 +187,7 @@ const osStore = types
     .model('os',{
         isKernelReady: false,
         isXtermReady: false,
+        isKernelBusy: false,
         cwd: ansi.format('[black bg-white bold]{$~/RTIDE}[black bg-green bold]{>}'),
         line: '',
         lineIdx: 0,
@@ -195,11 +196,15 @@ const osStore = types
     })
     .actions(self => ({
         osBoot(){
+            self.isKernelBusy = true
             boot(self.initKernel)
             self.welcome()
         },
         setKernelReady(){
             self.isKernelReady = true
+        },
+        setIsKernelBusy(busy){
+            self.isKernelBusy = busy
         },
         initKernel(){
             const env = getEnv(self)
@@ -218,6 +223,7 @@ const osStore = types
                     xterm.writeln('')
                     xterm.write(self.cwd)
                     console.log(cmdStyled('Welcome to RTIDE! '))
+                    self.setIsKernelBusy(false)
                     clearInterval(ct)
                 }else{
                     if(self.isXtermReady){
@@ -315,13 +321,13 @@ const osStore = types
                     self.lineIdx--
                 }
             /* Arrow Left */
-            }else if(domEvent.keyCode == 37){
+            }else if(domEvent.keyCode === 37){
                 if(self.lineIdx > 0){
                     self.lineIdx--
                     xterm.write(key)
                 }
             /* Arrow right */
-            }else if(domEvent.keyCode == 39){
+            }else if(domEvent.keyCode === 39){
                 if (self.lineIdx < self.line.length) {
                     self.lineIdx++
                     xterm.write(key)

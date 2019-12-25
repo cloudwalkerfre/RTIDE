@@ -3,22 +3,27 @@ import { observer } from 'mobx-react-lite'
 import { useStore } from '../../hooks/useStore'
 import { ReactSVG } from 'react-svg'
 
-const InputTag = observer(({ file, store }) =>{
+const InputTag = observer(({ file }) =>{
+    const store = useStore()
     const inputRef = React.createRef()
     React.useEffect(() => {
         inputRef.current.focus()
         store.file.getFileViewRef().current.scrollTo(0, inputRef.current.offsetTop)
     }, [file.isEdit])
 
-    return <input
-            className='name-tag-edit'
-            onKeyUp={ store.file.mkdir2 }
-            placeholder={ file.name }
-            ref={ inputRef }
-         />
+    return (
+            <input
+                className='name-tag-edit'
+                onKeyUp={ store.file.mkdir2 }
+                placeholder={ file.name }
+                ref={ inputRef }
+            />
+         )
 })
 
-const NameTag = observer(({ file, store, className }) => {
+const NameTag = observer(({ file, className }) => {
+    const store = useStore()
+
     return (
         <div
             key={ Math.random() }
@@ -27,7 +32,7 @@ const NameTag = observer(({ file, store, className }) => {
         >
             <IconTag file={ file } />
             <div className='file-name-tag' >
-                { file.isEdit && <InputTag file={ file } store={ store } /> }
+                { file.isEdit && <InputTag file={ file } /> }
                 { file.name }
             </div>
         </div>
@@ -56,18 +61,18 @@ const FileView = observer(() => {
         if(files.type === 'dir'){
             return (
                 <div key={Math.random()} className='dir'>
-                    <NameTag file={ files } store={ store } className='folder-tag' />
+                    <NameTag file={ files } className='folder-tag' />
                     <div className={ files.isExpend ? 'subfolder' : 'subfolder-collapse' }>
                         {files.children.map(c =>
                             FileRecur(c)
                         )}
                     </div>
                 </div>
-                )
+            )
         }else if(files.type === 'file'){
             return (
                 <div key={Math.random()} className={files.type}>
-                    <NameTag file={ files }  store={ store } className='file-tag' />
+                    <NameTag file={ files } className='file-tag' />
                 </div>
             )
         }

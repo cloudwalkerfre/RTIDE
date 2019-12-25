@@ -4,7 +4,6 @@ import { observer } from 'mobx-react-lite'
 import Term from "./term"
 import MonoEditor from "./editor"
 import OperationBar from './operationBar'
-import { useStore } from '../../hooks/useStore'
 import { Content } from 'rsuite'
 
 const WorkSpace = observer(() => {

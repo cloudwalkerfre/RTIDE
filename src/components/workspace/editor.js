@@ -2,7 +2,6 @@ import React, { useRef }from "react";
 import Editor, {monaco} from "@monaco-editor/react"
 import { observer } from 'mobx-react-lite'
 import { useStore } from '../../hooks/useStore'
-import { Button } from 'rsuite'
 
 /*
     facing issue using local server when changing language
