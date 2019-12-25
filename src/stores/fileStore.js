@@ -34,11 +34,20 @@ const fileStore = types
         isFileStoreReady(){
             return self.fileStoreReady
         },
-        monoOpen(file){
-            if(self.lastOpen !== getRelativePath(self.directory, file)){
-                const ev = getEnv(self)
-                ev.os.exeCallback('cat '+ file.path + '/' + file.name, (string) => ev.editor.newMono(string, file.path))
-                file.isOpen = true
+        handleClick(file){
+            if(file.type === 'file'){
+                if(self.lastOpen !== getRelativePath(self.directory, file)){
+                    const ev = getEnv(self)
+                    ev.os.exeCallback('cat '+ file.path + '/' + file.name, (string) => ev.editor.newMono(string, file.path))
+                    file.isOpen = true
+                    if(file.lastOpen !== ''){
+                        resolvePath(self.directory, self.lastOpen).isOpen = false
+                    }
+                    self.lastOpen = getRelativePath(self.directory, file)
+                }
+            }else{
+                file.isOpen = !file.isOpen
+                file.isExpend = !file.isExpend
                 if(file.lastOpen !== ''){
                     resolvePath(self.directory, self.lastOpen).isOpen = false
                 }

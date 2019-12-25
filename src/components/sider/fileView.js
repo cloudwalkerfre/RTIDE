@@ -10,11 +10,7 @@ const NameTag = observer(({ file, className }) => {
         <div
             key={Math.random()}
             className={ file.isOpen ? className + ' name-tag-hover' : className }
-            onClick={() => {
-                if(file.type === 'file'){
-                    store.file.monoOpen(file)}
-                }
-            }
+            onClick={() => store.file.handleClick(file) }
         >
             <IconTag file={ file } />
             <div className='file-name-tag' >
@@ -28,7 +24,7 @@ const IconTag = ({ file }) => {
     if(file.type === 'dir'){
         return (
             <>
-                <ReactSVG src='icons/chevron-down.svg' />
+                { file.isExpend ? <ReactSVG src='icons/chevron-down.svg' /> : <ReactSVG src='icons/chevron-right.svg' />}
                 <ReactSVG src='icons/folder.svg' />
             </>
         )
@@ -45,7 +41,7 @@ const FileView = observer(() => {
             return (
                 <div key={Math.random()} className='dir'>
                     <NameTag file={ files } className='folder-tag' />
-                    <div className='subfolder'>
+                    <div className={ files.isExpend ? 'subfolder' : 'subfolder-collapse' }>
                         {files.children.map(c =>
                             FileRecur(c)
                         )}

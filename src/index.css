@@ -39,6 +39,10 @@ code {
   border-left-color: rgb(155, 151, 151); */
 }
 
+.subfolder-collapse {
+  display: none;
+}
+
 .subfolder:hover {
   border-left: outset;
   border-left-width: 1px;
