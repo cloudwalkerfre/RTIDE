@@ -144,6 +144,10 @@ code {
   cursor: pointer;
 }
 
+.name-tag-hover {
+  background-color:rgb(40, 44, 52);
+}
+
 .file-name-tag {
   margin-left: 5px;
   font-size: medium;

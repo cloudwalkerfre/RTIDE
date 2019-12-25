@@ -18,7 +18,7 @@ const OperationBar = observer(() => {
             <div
                 className='operation-bar'
             >
-                { store.py.isPyodideReady ? 
+                { store.py.isPyodideReady ?
                     <>
                           Run Python   
                         <ReactSVG src='icons/start.svg' onClick={ handleRunPython } />
