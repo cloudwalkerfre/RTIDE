@@ -3,7 +3,7 @@
 
 ---
 
-This project is made possible by the following amazing project: [`pyodide`](https://github.com/iodide-project/pyodide/), [`browsix`](https://github.com/plasma-umass/browsix), [`xterm.js`](https://github.com/xtermjs/xterm.js), [`monaco`](https://github.com/SurenAt93/monaco-react/), [`ComLink`](https://github.com/GoogleChromeLabs/comlink), `mobx-state-tree`, `rsuite` and `React`
+This project is made possible by the following amazing project: [`pyodide`](https://github.com/iodide-project/pyodide/), [`browsix`](https://github.com/plasma-umass/browsix), [`xterm.js`](https://github.com/xtermjs/xterm.js), [`monaco`](https://github.com/SurenAt93/monaco-react/), [`ComLink`](https://github.com/GoogleChromeLabs/comlink), `mobx-state-tree` and `React`
 
 
 PROJECT IN DEVELOPMENT...

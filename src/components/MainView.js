@@ -5,7 +5,6 @@ import Footer from './footer/footer'
 import Sidebar from './sider/sidebar'
 import { useScript } from '../hooks/useScript'
 import { useStore } from '../hooks/useStore'
-import { Container } from 'rsuite'
 
 const MainView = () => {
     const store = useStore()
@@ -16,14 +15,14 @@ const MainView = () => {
     store.py.checkPyReady()
 
     return (
-        <Container className='App'>
+        <div className='App'>
             <Header />
-            <Container className='body'>
+            <div className='body'>
                 <Sidebar />
                 <WorkSpace />
-            </Container>
+            </div>
             <Footer />
-        </Container>
+        </div>
     )
 }
 

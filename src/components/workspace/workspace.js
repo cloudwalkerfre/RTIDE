@@ -1,18 +1,16 @@
 import React from "react"
 import { observer } from 'mobx-react-lite'
-// import SideBar from '../sider/sidebar'
 import Term from "./term"
 import MonoEditor from "./editor"
 import OperationBar from './operationBar'
-import { Content } from 'rsuite'
 
 const WorkSpace = observer(() => {
     return (
-        <Content className='workspace'>
+        <div className='workspace'>
             <OperationBar />
             <MonoEditor />
             <Term />
-        </Content>
+        </div>
     )
 })
 

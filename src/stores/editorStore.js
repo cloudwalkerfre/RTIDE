@@ -1,13 +1,15 @@
 import { types, getEnv } from 'mobx-state-tree'
 import { regexFileType } from '../util/util'
 
+let EditorInstance
+
 const editorStore = types.model('editor', {
         isEditorReady: false,
-        height: '90vh',
+        height: '60vh',
         language: '',
         value: '',
         initialValue: '',
-        pathNname: '',
+        pathName: '',
         isEdited: false
     }).actions(self => ({
         setEditorReady(){
@@ -25,18 +27,24 @@ const editorStore = types.model('editor', {
         getIsEdited(){
             return self.isEdited
         },
-        newMono(str, pathNname){
+        setEditorInstance(ins){
+            EditorInstance = ins
+        },
+        newMono(str, pathName){
             if(self.isEdited){
                 const ev = getEnv(self)
-                ev.os.exeExitback('echo "' + self.value + '" > ' + self.pathNname,
-                    () => { console.log(self.pathNname + ' saved!') }
+                ev.os.exeExitback('echo "' + self.value + '" > ' + self.pathName,
+                    () => { console.log(self.pathName + ' saved!') }
                 )
             }
             self.value = str || ''
             self.initialValue = str
-            self.pathNname = pathNname
+            self.pathName = pathName
             self.isEdited = false
-            self.language = regexFileType(pathNname) || 'javascript'
+            self.language = regexFileType(pathName) || 'javascript'
+            if(EditorInstance){
+                EditorInstance.focus()
+            }
         }
     }))
 

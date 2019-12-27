@@ -29,6 +29,7 @@ const MonoEditor = observer(() => {
     const handleEditorDidMount = (_, _valueGetter) => {
         editorRef.current = _valueGetter
         store.editor.setEditorReady()
+        store.editor.setEditorInstance(editorRef.current)
         editorRef.current.onDidChangeModelContent(ev => {
             store.editor.setValue(editorRef.current.getValue())
         })
@@ -39,7 +40,7 @@ const MonoEditor = observer(() => {
         <div className='editor'>
             <Editor
                 theme='dark'
-                height={ window.innerHeight - 270 }
+                height={ store.editor.height }
                 language={ store.editor.language }
                 value={ store.editor.value }
                 editorDidMount={ handleEditorDidMount }

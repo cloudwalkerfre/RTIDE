@@ -13,18 +13,16 @@ code {
 }
 
 .App {
+  display: flex;
   height: 100vh;
-  /* max-height: 100%;
-  min-height: 500px; */
-  /* max-width: 100%;
-  min-width: 100%; */
   overflow: hidden;
-  /* position: fixed; */
+  position: fixed;
+  flex-direction: column;
 }
 
 .sidebar {
-  max-width: 30%;
-  height: 100vh;
+  width: 25vw;
+  height: 100%;
   /* overflow: hidden; */
   border-right-style: solid;
   border-right-color: rgb(40, 44, 52);
@@ -53,8 +51,11 @@ code {
 .body {
   display: flex;
   flex-direction: row;
+  height: calc(100vh - 50px);
+  width: 100vw;
   flex: auto;
   background-color: rgb(40, 44, 52);
+  overflow: hidden;
 }
 
 .operation-bar {
@@ -62,15 +63,25 @@ code {
 }
 
 .workspace {
-  display: felx;
+  display: flex;
   flex-direction: column;
-  flex: auto;
+  height: calc(100vh - 50px);
+  width: 75vw;
 }
 
 .header {
   height: 30px;
+  width: 100vw;
   text-align: center;
   background-color: rgb(40, 44, 52);
+  display: flex;
+  flex-direction: row;
+  font-size: medium;
+  color: rgb(204, 204, 204);
+}
+
+.editor {
+  height: 60vh;
 }
 
 .terminal-container {
@@ -78,11 +89,13 @@ code {
   border-top-style: solid;
   border-top-color: rgb(40, 44, 52);
   display: flex;
-  height: 190px;
+  height: calc(40vh - 80px);
+  min-height: 150px;
 }
 
 .xterm {
-  height: 180px;
+  height: calc(40vh - 90px);
+  min-height: 140px;
 }
 
 .xterm-viewport::-webkit-scrollbar {
@@ -102,14 +115,15 @@ code {
 }
 
 .fileview {
-  height: calc(100% - 270px);
+  height: 60vh;
+  width: 100%;
   overflow: hidden;
   background-color: rgb(32, 33, 36);
 }
 
 .fileview:hover {
   overflow-y: scroll;
-  overflow-x: scroll;
+  /* overflow-x: scroll; */
 }
 
 .fileview::-webkit-scrollbar {
@@ -130,6 +144,7 @@ code {
 
 .file-handle {
   height: 30px;
+  width: 100%;
   display: flex;
 }
 
@@ -138,7 +153,7 @@ code {
   height: 30px;
   vertical-align: middle;
   line-height: 30px;
-  width: 130px;
+  width: calc(25vw - 80px);
   color: white;
   font-size: small;
 }
@@ -154,13 +169,15 @@ code {
 
 .footer {
   height: 20px;
+  width: 100vw;
   /* border-top-style: solid; */
   text-align: center;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+  /* position: fixed; */
+  /* bottom: 0; */
+  /* left: 0; */
   background-color: rgb(40, 44, 52);
+  font-size: medium;
+  color: rgb(204, 204, 204);
 }
 
 .file-tag {
@@ -219,7 +236,7 @@ code {
 } */
 
 .operation-bar {
-  margin-left: 10px;
+  margin-left: 30px;
   display: flex;
   font-size: small;
   color: rgb(204, 204, 204);
@@ -232,8 +249,3 @@ code {
 .operation-bar .injected-svg{
   margin: 7px 0px 7px 0px;
 }
-/*
-.header {
-  text-align: center;
-  border-bottom-style: solid;
-} */
