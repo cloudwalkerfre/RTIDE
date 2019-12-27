@@ -205,6 +205,8 @@ code {
   border-style: solid;
   background:rgb(50, 56, 66);
   outline: none;
+  font-size: medium;
+  color: rgb(204, 204, 204);
 }
 
 /* .name-tag-edit:focus {
