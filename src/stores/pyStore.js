@@ -26,7 +26,7 @@ const pyStore = types
         setPyodideReady(){
             self.isPyodideReady = true
         },
-        getPyodide(data){
+        run(data){
             if(self.isPyodideReady){
                 return pyodide.runPython(data)
             }else{

@@ -6,15 +6,17 @@ import { ReactSVG } from 'react-svg'
 const InputTag = observer(({ file }) =>{
     const store = useStore()
     const inputRef = React.createRef()
+
     React.useEffect(() => {
         inputRef.current.focus()
-        store.file.getFileViewRef().current.scrollTo(0, inputRef.current.offsetTop)
-    }, [file.isEdit])
+        store.file.getFileViewRef().current.scrollTo(0, inputRef.current.offsetTop - 10)
+        store.file.addNewTagInputBlurListener(inputRef)
+    }, [])
 
     return (
             <input
                 className='name-tag-edit'
-                onKeyUp={ store.file.mkdir2 }
+                onKeyUp={ file.type === 'file' ? store.file.newFile2 : store.file.mkdir2 }
                 placeholder={ file.name }
                 ref={ inputRef }
             />
@@ -32,8 +34,8 @@ const NameTag = observer(({ file, className }) => {
         >
             <IconTag file={ file } />
             <div className='file-name-tag' >
-                { file.isEdit && <InputTag file={ file } /> }
-                { file.name }
+                { file.isNameEdit && <InputTag file={ file } /> }
+                { !file.isNameEdit && file.name }
             </div>
         </div>
     )

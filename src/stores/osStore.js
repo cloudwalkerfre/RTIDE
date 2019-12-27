@@ -26,12 +26,12 @@ let kernel
 let xterm
 let stdin = null
 
-const boot = (callback) => {
+const boot = (afterBoot) => {
     console.log('Browsix Booting...')
     window.Boot(
         'IndexedDB',
         [() =>
-            initFS(kernel.fs, callback)
+            initFS(kernel.fs, afterBoot)
         ],
         // 'XmlHttpRequest',
         // ['index.json', 'browsix', true],
@@ -55,7 +55,7 @@ const initBootFS = () => {
     return new FileSystem.XmlHttpRequest('index.json', 'browsix')
 }
 
-const initFS = async (userFS, callback) => {
+const initFS = async (userFS, afterBoot) => {
     try {
         const bootFS = await initBootFS()
 
@@ -151,9 +151,9 @@ const initFS = async (userFS, callback) => {
             })
         }
         await copyFS()
-        await mkdir('/home')
+        // await mkdir('/home')
         console.log('indexDB loaded!')
-        callback()
+        afterBoot()
     } catch (e){
         console.error(e)
     }
@@ -212,7 +212,10 @@ const osStore = types
             /*
                 We boot fileStore's directory here as well
             */
-            self.exeCallback('treejson', env.file.setDirectory)
+            self.exeCallback('treejson',
+                () => {},
+                env.file.init
+            )
             console.log(cmdStyled('Browsix Booted!'))
         },
         welcome(){
@@ -250,16 +253,17 @@ const osStore = types
                 xterm.write(self.cwd)
             }
         },
-        exeCallback(cmd, callback){
+        exeCallback(cmd, onExit, onOutput){
             if(cmd !== null && cmd !== ''){
                 kernel.system(
                     cmd,
                     (pid, code) => {
                         /*onExit(pid, code, self.cwd)*/
+                        onExit()
                     },
                     (pid, out) => {
                         // onStdout(pid, out)
-                        callback(out)
+                        onOutput(out)
                     },
                     onStderr,
                     onHaveStdin

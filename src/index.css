@@ -23,20 +23,20 @@ code {
 }
 
 .sidebar {
-  max-width: 200px;
+  max-width: 30%;
   height: 100vh;
-  overflow: hidden;
+  /* overflow: hidden; */
   border-right-style: solid;
   border-right-color: rgb(40, 44, 52);
-  border-right-width: 10px;
+  border-right-width: 20px;
 }
 
 .subfolder{
   margin-left: 10px;
-  /* border-left: outset;
+  border-left: outset;
   border-left-width: 1px;
   border-left-style: solid;
-  border-left-color: rgb(155, 151, 151); */
+  border-left-color: rgba(155, 151, 151, 0.2);
 }
 
 .subfolder-collapse {
@@ -89,8 +89,16 @@ code {
   width: 10px;
 }
 
+.xterm-viewport::-webkit-scrollbar-track {
+  display: none;
+}
+
 .xterm-viewport::-webkit-scrollbar-thumb {
-  background:rgb(50, 56, 66);
+  background:rgba(50, 56, 66);
+}
+
+.xterm-viewport::-webkit-scrollbar-corner {
+  display: none;
 }
 
 .fileview {
@@ -101,14 +109,23 @@ code {
 
 .fileview:hover {
   overflow-y: scroll;
+  overflow-x: scroll;
 }
 
 .fileview::-webkit-scrollbar {
   width: 10px;
 }
 
+.fileview::-webkit-scrollbar-track {
+  display: none;
+}
+
 .fileview::-webkit-scrollbar-thumb {
   background:rgb(50, 56, 66);
+}
+
+.fileview::-webkit-scrollbar-corner {
+  display: none;
 }
 
 .file-handle {
@@ -176,7 +193,7 @@ code {
   margin-left: 5px;
   font-size: medium;
   color: rgb(204, 204, 204);
-  overflow: hidden;
+  /* overflow: hidden; */
   white-space: nowrap;
 }
 

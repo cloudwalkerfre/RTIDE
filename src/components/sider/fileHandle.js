@@ -17,7 +17,7 @@ const FileHandle = observer(() => {
                 {
                     store.os.isKernelReady &&
                     <>
-                        <ReactSVG src='icons/new-file.svg' />
+                        <ReactSVG src='icons/new-file.svg'  onClick={ store.file.newFile1 } />
                         <ReactSVG src='icons/new-folder.svg' onClick={ store.file.mkdir1 } />
                         <ReactSVG src='icons/refresh.svg' onClick={ store.file.refresh } />
                         <ReactSVG src='icons/collapse-all.svg' onClick={ store.file.collapseAll } />
