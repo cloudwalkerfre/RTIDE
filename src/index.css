@@ -52,7 +52,7 @@ code {
 
 .body {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex: auto;
   background-color: rgb(40, 44, 52);
 }
