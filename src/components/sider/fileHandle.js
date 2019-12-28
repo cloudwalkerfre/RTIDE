@@ -12,7 +12,7 @@ const FileHandle = observer(() => {
                 className='file-handle'
             >
                 {/* <ReactSVG src='icons/chevron-down.svg' /> */}
-                <div className='file-handle-text' >RTIDE</div>
+                <div className='file-handle-text' >{'\u00A0'.repeat(3) + 'RTIDE'}</div>
                 {/* /TODO */}
                 {
                     store.os.isKernelReady &&

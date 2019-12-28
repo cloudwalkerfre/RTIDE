@@ -43,6 +43,11 @@ const fileStore = types
         tmpLastClick: '',
         folderExpandCollec: types.array(types.string)
     })
+    .views(self => ({
+        get lastClickNode(){
+            return resolvePath(self.directory, self.lastClick)
+        }
+    }))
     .actions(self => ({
         init(tree){
             const ev = getEnv(self)
@@ -81,7 +86,7 @@ const fileStore = types
                     self.lastClick = getRelativePath(self.directory, c.children[0])
                 }
             })
-            ev.editor.newMono('import sys\nsys.version', 'home/test.py')
+            ev.tabs.addTab({name: 'test.py', path: '/home'}, 'import sys\nsys.version')
         },
         setDirectory(treejson){
             treejson.isExpend = true
@@ -102,16 +107,15 @@ const fileStore = types
             if(file.type === 'file'){
                 if(self.lastClick !== jsonPath){
                     const ev = getEnv(self)
-                    const LastClickNode = resolvePath(self.directory, self.lastClick)
 
                     let catReturn = ''
                     ev.os.exeCallback('cat '+ file.path + '/' + file.name,
-                        () => ev.editor.newMono(catReturn, file.path + '/' + file.name),
+                        () => ev.tabs.addTab({name: file.name, path: file.path}, catReturn),
                         (string) => catReturn = string
                     )
                     file.isCurrent = true
                     if(file.lastClick !== ''){
-                        LastClickNode.isCurrent = false
+                        self.lastClickNode.isCurrent = false
                     }
                     self.lastClick = jsonPath
                     file.isOpen = true
@@ -120,7 +124,7 @@ const fileStore = types
                 if(self.lastClick !== jsonPath){
                     file.isCurrent = !file.isCurrent
                     if(file.lastClick !== ''){
-                        resolvePath(self.directory, self.lastClick).isCurrent = false
+                        self.lastClickNode.isCurrent = false
                     }
                     self.lastClick = jsonPath
                 }
@@ -153,17 +157,16 @@ const fileStore = types
         mkdir1(){
             let PATH
             let PARENT
-            const LastClickNode = resolvePath(self.directory, self.lastClick)
             if(self.lastClick !== ''){
                 self.tmpLastClick = self.lastClick
-                if(LastClickNode.type === 'file'){
-                    PATH = LastClickNode.path
-                    PARENT = getParent(LastClickNode)
+                if(self.lastClickNode.type === 'file'){
+                    PATH = self.lastClickNode.path
+                    PARENT = getParent(self.lastClickNode)
                 }else{
-                    PATH = LastClickNode.path + '/' + LastClickNode.name
-                    PARENT = LastClickNode.children
-                    if(!LastClickNode.isExpend){
-                        LastClickNode.isExpend = true
+                    PATH = self.lastClickNode.path + '/' + self.lastClickNode.name
+                    PARENT = self.lastClickNode.children
+                    if(!self.lastClickNode.isExpend){
+                        self.lastClickNode.isExpend = true
                         self.folderExpandCollec.push(self.lastClick)
                     }
                 }
@@ -186,7 +189,7 @@ const fileStore = types
                 })
                 PARENT.push(newDir)
             if(self.lastClick !== ''){
-                LastClickNode.isCurrent = false
+                self.lastClickNode.isCurrent = false
             }
             const newDirJsonPath = getRelativePath(self.directory, newDir)
             self.lastClick = newDirJsonPath
@@ -204,12 +207,11 @@ const fileStore = types
                     self.handleNewTagInputDelete()
                     return
                 }
-                const tmpDirNode = resolvePath(self.directory, self.lastClick)
-                const dirPathName = tmpDirNode.path + '/' + tmpDir
-                tmpDirNode.name = tmpDir
+                const dirPathName = self.lastClickNode.path + '/' + tmpDir
+                self.lastClickNode.name = tmpDir
 
                 NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
-                tmpDirNode.isNameEdit = false
+                self.lastClickNode.isNameEdit = false
 
                 const ev = getEnv(self)
                 // self.fileStoreReady = false
@@ -222,17 +224,16 @@ const fileStore = types
         newFile1(){
             let PATH
             let PARENT
-            const LastClickNode = resolvePath(self.directory, self.lastClick)
             if(self.lastClick !== ''){
                 self.tmpLastClick = self.lastClick
-                if(LastClickNode.type === 'file'){
-                    PATH = LastClickNode.path
-                    PARENT = getParent(LastClickNode)
+                if(self.lastClickNode.type === 'file'){
+                    PATH = self.lastClickNode.path
+                    PARENT = getParent(self.lastClickNode)
                 }else{
-                    PATH = LastClickNode.path + '/' + LastClickNode.name
-                    PARENT = LastClickNode.children
-                    if(!LastClickNode.isExpend){
-                        LastClickNode.isExpend = true
+                    PATH = self.lastClickNode.path + '/' + self.lastClickNode.name
+                    PARENT = self.lastClickNode.children
+                    if(!self.lastClickNode.isExpend){
+                        self.lastClickNode.isExpend = true
                         self.folderExpandCollec.push(self.lastClick)
                     }
                 }
@@ -254,7 +255,7 @@ const fileStore = types
                 })
                 PARENT.push(newFile)
             if(self.lastClick !== ''){
-                LastClickNode.isCurrent = false
+                self.lastClickNode.isCurrent = false
             }
             const newDirJsonPath = getRelativePath(self.directory, newFile)
             self.lastClick = newDirJsonPath
@@ -270,18 +271,17 @@ const fileStore = types
                     self.handleNewTagInputDelete()
                     return
                 }
-                const tmpFileNode = resolvePath(self.directory, self.lastClick)
-                const filePathName = tmpFileNode.path + '/' + tmpFile
-                tmpFileNode.name = tmpFile
+                const filePathName = self.lastClickNode.path + '/' + tmpFile
+                self.lastClickNode.name = tmpFile
 
                 NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
-                tmpFileNode.isNameEdit = false
+                self.lastClickNode.isNameEdit = false
 
                 const ev = getEnv(self)
                 // self.fileStoreReady = false
                 // ev.os.exeExitback('touch ' + filePathName, self.refresh)
                 ev.os.exeExitback('touch ' + filePathName, () => {})
-                ev.editor.newMono('', filePathName)
+                ev.tabs.addTab({name: tmpFile, path: self.lastClickNode.path}, '')
             }else if(e.keyCode === 27){
                 self.handleNewTagInputDelete()
             }
@@ -290,15 +290,14 @@ const fileStore = types
             if(NewTagInputRef.current !== undefined){
                 NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
             }
-            const tmpTagNode = resolvePath(self.directory, self.lastClick)
-            const PARENT = getParent(tmpTagNode)
+            const PARENT = getParent(self.lastClickNode)
 
-            if(tmpTagNode.type !== 'file'){
+            if(self.lastClickNode.type !== 'file'){
                 self.folderExpandCollec.pop()
             }
             PARENT.pop()
             self.lastClick = self.tmpLastClick
-            resolvePath(self.directory, self.lastClick).isCurrent = true
+            self.lastClickNode.isCurrent = true
         },
         addNewTagInputBlurListener(ref){
             self.setNewTagInputRef(ref)
@@ -308,7 +307,7 @@ const fileStore = types
             self.folderExpandCollec.forEach(c => {
                 resolvePath(self.directory, c).isExpend = false
             })
-            resolvePath(self.directory, self.lastClick).isCurrent = false
+            self.lastClickNode.isCurrent = false
             self.folderExpandCollec = []
             self.lastClick = ''
         },

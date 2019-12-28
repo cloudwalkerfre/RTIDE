@@ -73,11 +73,65 @@ code {
   height: 30px;
   width: 100vw;
   text-align: center;
-  background-color: rgb(40, 44, 52);
+  background-color: rgb(32, 33, 36);
   display: flex;
   flex-direction: row;
   font-size: medium;
   color: rgb(204, 204, 204);
+}
+
+.header-name-tag {
+  width: calc(25vw + 20px);
+  background-color: rgb(32, 33, 36);
+  text-align: left;
+  line-height: 30px;
+}
+
+.header-tab-tag {
+  height: 30px;
+  min-width: 150px;
+  border-right-style: solid;
+  border-right-color: rgb(40, 44, 52);
+  border-right-width: 1px;
+  background-color: rgb(32, 33, 36);
+  text-align: center;
+  line-height: 30px;
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+}
+
+.header-tab-tag-current {
+  height: 30px;
+  min-width: 150px;
+  background-color: rgb(40, 44, 52);
+  text-align: center;
+  line-height: 30px;
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+}
+
+.header-tab-tag .injected-svg{
+  size: 16px;
+  margin: 7px 2px;
+  cursor: pointer;
+}
+
+.header-tab-tag-name {
+  font-size: medium;
+  width: 80%;
+}
+
+.header-tabs-container {
+  height: 30px;
+  width: calc(75vw - 20px);
+  display: flex;
+  flex-direction: row;
+  font-size: medium;
+  color: rgb(204, 204, 204);
+  overflow: hidden;
+  background-color: rgb(32, 33, 36);
 }
 
 .editor {
@@ -149,7 +203,6 @@ code {
 }
 
 .file-handle-text {
-  margin-left: 10px;
   height: 30px;
   vertical-align: middle;
   line-height: 30px;
@@ -161,6 +214,7 @@ code {
 .file-handle .injected-svg{
   size: 16px;
   margin: 7px 2px;
+  cursor: pointer;
 }
 
 .injected-svg {
@@ -247,4 +301,5 @@ code {
 
 .operation-bar .injected-svg{
   margin: 7px 0px 7px 0px;
+  cursor: pointer;
 }
