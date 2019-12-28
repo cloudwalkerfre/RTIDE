@@ -1,4 +1,4 @@
-import { types, getEnv, getRelativePath, resolvePath, getSnapshot, getParent } from "mobx-state-tree"
+import { types, getEnv, getRelativePath, resolvePath, tryResolve, getSnapshot, getParent, hasParent } from "mobx-state-tree"
 
 /*
     There should be a better name for this, directory is kind of missleading,
@@ -24,6 +24,7 @@ let NewTagInputRef
 
 const directory = types
     .model('directory', {
+        id: types.identifier,
         name: types.string,
         path: types.string,
         type: types.string,
@@ -56,6 +57,7 @@ const fileStore = types
             const treejson = JSON.parse(tree)
             treejson.isExpend = true
             const home = {
+                id: '/home',
                 name: 'home',
                 path: '/',
                 type: 'dir',
@@ -66,6 +68,7 @@ const fileStore = types
                 isNameEdit: false
             }
             const testpy = {
+                id: '/home/test.py',
                 name: 'test.py',
                 path: '/home',
                 type: 'file',
@@ -86,7 +89,7 @@ const fileStore = types
                     self.lastClick = getRelativePath(self.directory, c.children[0])
                 }
             })
-            ev.tabs.addTab({name: 'test.py', path: '/home'}, 'import sys\nsys.version')
+            ev.tabs.addTab({id: '/home/test.py', name: 'test.py', path: '/home'}, 'import sys\nsys.version')
         },
         setDirectory(treejson){
             treejson.isExpend = true
@@ -110,7 +113,7 @@ const fileStore = types
 
                     let catReturn = ''
                     ev.os.exeCallback('cat '+ file.path + '/' + file.name,
-                        () => ev.tabs.addTab({name: file.name, path: file.path}, catReturn),
+                        () => ev.tabs.addTab({id: file.id, name: file.name, path: file.path}, catReturn),
                         (string) => catReturn = string
                     )
                     file.isCurrent = true
@@ -155,45 +158,8 @@ const fileStore = types
             )
         },
         mkdir1(){
-            let PATH
-            let PARENT
-            if(self.lastClick !== ''){
-                self.tmpLastClick = self.lastClick
-                if(self.lastClickNode.type === 'file'){
-                    PATH = self.lastClickNode.path
-                    PARENT = getParent(self.lastClickNode)
-                }else{
-                    PATH = self.lastClickNode.path + '/' + self.lastClickNode.name
-                    PARENT = self.lastClickNode.children
-                    if(!self.lastClickNode.isExpend){
-                        self.lastClickNode.isExpend = true
-                        self.folderExpandCollec.push(self.lastClick)
-                    }
-                }
-            }else{
-                self.tmpLastClick = ''
-                PATH = '/'
-                PARENT = self.directory.children
-                self.directory.isExpend = true
-                self.folderExpandCollec.push('')
-            }
-            const newDir = directory.create({
-                    name: 'tmpdir',
-                    path: PATH,
-                    type: 'dir',
-                    isCurrent: true,
-                    isOpen: false,
-                    isExpend: true,
-                    isNameEdit: true,
-                    children: []
-                })
-                PARENT.push(newDir)
-            if(self.lastClick !== ''){
-                self.lastClickNode.isCurrent = false
-            }
-            const newDirJsonPath = getRelativePath(self.directory, newDir)
-            self.lastClick = newDirJsonPath
-            self.folderExpandCollec.push(newDirJsonPath)
+            const { PATH, PARENT } = self.getRelativePosition()
+            self.setNewNode(PATH, PARENT, 'folder', 'tmpFolder')
         },
         /* TODO: handle newDir of the same name */
         mkdir2(e){
@@ -207,58 +173,25 @@ const fileStore = types
                     self.handleNewTagInputDelete()
                     return
                 }
-                const dirPathName = self.lastClickNode.path + '/' + tmpDir
-                self.lastClickNode.name = tmpDir
+                self.handleNewTagInputDelete()
+
+                const { PATH, PARENT } = self.getRelativePosition()
+                self.setNewNode(PATH, PARENT, 'folder', tmpDir)
 
                 NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
                 self.lastClickNode.isNameEdit = false
 
                 const ev = getEnv(self)
                 // self.fileStoreReady = false
-                // ev.os.exeExitback('mkdir ' + dirPathName, self.refresh)
-                ev.os.exeExitback('mkdir ' + dirPathName, () => {})
+                // ev.os.exeExitback('mkdir ' + newDir.id, self.refresh)
+                ev.os.exeExitback('mkdir ' + self.lastClickNode.id, () => {})
             }else if(e.keyCode === 27){
                 self.handleNewTagInputDelete()
             }
         },
         newFile1(){
-            let PATH
-            let PARENT
-            if(self.lastClick !== ''){
-                self.tmpLastClick = self.lastClick
-                if(self.lastClickNode.type === 'file'){
-                    PATH = self.lastClickNode.path
-                    PARENT = getParent(self.lastClickNode)
-                }else{
-                    PATH = self.lastClickNode.path + '/' + self.lastClickNode.name
-                    PARENT = self.lastClickNode.children
-                    if(!self.lastClickNode.isExpend){
-                        self.lastClickNode.isExpend = true
-                        self.folderExpandCollec.push(self.lastClick)
-                    }
-                }
-            }else{
-                self.tmpLastClick = ''
-                PATH = '/'
-                PARENT = self.directory.children
-                self.directory.isExpend = true
-                self.folderExpandCollec.push('')
-            }
-            const newFile = directory.create({
-                    name: 'tmpfile',
-                    path: PATH,
-                    type: 'file',
-                    isCurrent: true,
-                    isOpen: false,
-                    isExpend: false,
-                    isNameEdit: true
-                })
-                PARENT.push(newFile)
-            if(self.lastClick !== ''){
-                self.lastClickNode.isCurrent = false
-            }
-            const newDirJsonPath = getRelativePath(self.directory, newFile)
-            self.lastClick = newDirJsonPath
+            const { PATH, PARENT } = self.getRelativePosition()
+            self.setNewNode(PATH, PARENT, 'file', 'tmpFile')
         },
         newFile2(e){
             if(e.keyCode === 13 && e.target.value !== ''){
@@ -271,17 +204,17 @@ const fileStore = types
                     self.handleNewTagInputDelete()
                     return
                 }
-                const filePathName = self.lastClickNode.path + '/' + tmpFile
-                self.lastClickNode.name = tmpFile
+                self.handleNewTagInputDelete()
+
+                const { PATH, PARENT } = self.getRelativePosition()
+                self.setNewNode(PATH, PARENT, 'file', tmpFile)
 
                 NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
                 self.lastClickNode.isNameEdit = false
 
                 const ev = getEnv(self)
-                // self.fileStoreReady = false
-                // ev.os.exeExitback('touch ' + filePathName, self.refresh)
-                ev.os.exeExitback('touch ' + filePathName, () => {})
-                ev.tabs.addTab({name: tmpFile, path: self.lastClickNode.path}, '')
+                ev.os.exeExitback('touch ' + self.lastClickNode.id, () => {})
+                ev.tabs.addTab({id: self.lastClickNode.id, name: self.lastClickNode.name, path: self.lastClickNode.path}, '')
             }else if(e.keyCode === 27){
                 self.handleNewTagInputDelete()
             }
@@ -312,17 +245,102 @@ const fileStore = types
             self.lastClick = ''
         },
         setFolderExpand(expands){
-            self.folderExpandCollec = expands
-            self.folderExpandCollec.forEach(c => {
-                resolvePath(self.directory, c).isExpend = true
+            self.folderExpandCollec = []
+            expands.forEach(c => {
+                try {
+                    resolvePath(self.directory, c).isExpend = true
+                    self.folderExpandCollec.push(c)
+                } catch(e){}
             })
         },
         setDirectoryReady(){
             self.isFileStoreReady = true
         },
         setLastClick(last){
-            self.lastClick = last
-            resolvePath(self.directory, last).isCurrent = true
+            if(self.lastClick !== ''){
+                self.lastClickNode.isCurrent = false
+            }
+            try {
+                const lastNode = resolvePath(self.directory, last)
+                lastNode.isCurrent = true
+                self.lastClick = last
+
+                self.getParentExpande(lastNode)
+            } catch(e){}
+        },
+        getParentExpande(lastNode){
+            if(hasParent(lastNode, 2)){
+                const parent = getParent(lastNode, 2)
+                    if(!parent.isExpend){
+                        parent.isExpend = true
+                        self.folderExpandCollec.push(getRelativePath(self.directory, parent))
+                    }
+                    if(hasParent(parent, 2)){
+                        self.getParentExpande(parent)
+                    }
+            }
+        },
+        getRelativePosition(){
+            let PATH
+            let PARENT
+            if(self.lastClick !== ''){
+                self.tmpLastClick = self.lastClick
+                if(self.lastClickNode.type === 'file'){
+                    PATH = self.lastClickNode.path
+                    PARENT = getParent(self.lastClickNode)
+                }else{
+                    PATH = self.lastClickNode.path + '/' + self.lastClickNode.name
+                    PARENT = self.lastClickNode.children
+                    if(!self.lastClickNode.isExpend){
+                        self.lastClickNode.isExpend = true
+                        self.folderExpandCollec.push(self.lastClick)
+                    }
+                }
+            }else{
+                self.tmpLastClick = ''
+                PATH = '/'
+                PARENT = self.directory.children
+                self.directory.isExpend = true
+                self.folderExpandCollec.push('')
+            }
+            return {PATH: PATH, PARENT: PARENT}
+        },
+        setNewNode(PATH, PARENT, TYPE, NAME){
+            let newNode
+            if(TYPE === 'file'){
+                newNode = directory.create({
+                    id: PATH + '/' + NAME,
+                    name: NAME,
+                    path: PATH,
+                    type: 'file',
+                    isCurrent: true,
+                    isOpen: false,
+                    isExpend: false,
+                    isNameEdit: true
+                })
+            }else{
+                newNode = directory.create({
+                    id: PATH + '/' + NAME,
+                    name: NAME,
+                    path: PATH,
+                    type: 'dir',
+                    isCurrent: true,
+                    isOpen: false,
+                    isExpend: true,
+                    isNameEdit: true,
+                    children: []
+                })
+            }
+            PARENT.push(newNode)
+            if(self.lastClick !== ''){
+                self.lastClickNode.isCurrent = false
+            }
+            const newNodeJsonPath = getRelativePath(self.directory, newNode)
+            self.lastClick = newNodeJsonPath
+
+            if(TYPE === 'folder'){
+                self.folderExpandCollec.push(newNodeJsonPath)
+            }
         },
         setFileViewRef(ref){
             FileViewRef = ref

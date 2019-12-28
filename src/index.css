@@ -85,6 +85,10 @@ code {
   background-color: rgb(32, 33, 36);
   text-align: left;
   line-height: 30px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .header-tab-tag {
@@ -99,6 +103,10 @@ code {
   display: flex;
   flex-direction: row;
   cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .header-tab-tag-current {
@@ -110,6 +118,10 @@ code {
   display: flex;
   flex-direction: row;
   cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .header-tab-tag .injected-svg{
@@ -200,6 +212,10 @@ code {
   height: 30px;
   width: 100%;
   display: flex;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .file-handle-text {
@@ -266,6 +282,10 @@ code {
   color: rgb(204, 204, 204);
   /* overflow: hidden; */
   white-space: nowrap;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .name-tag-edit {
@@ -297,6 +317,10 @@ code {
   flex: auto;
   vertical-align: middle;
   line-height: 30px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .operation-bar .injected-svg{
