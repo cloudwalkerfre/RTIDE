@@ -1,9 +1,12 @@
-import { types, getEnv, getRelativePath, resolvePath, tryResolve, getSnapshot, getParent, hasParent } from "mobx-state-tree"
+import { types, getEnv, getRelativePath, resolvePath, tryResolve, getSnapshot, getParent, hasParent, resolveIdentifier, getType } from "mobx-state-tree"
 
 /*
     There should be a better name for this, directory is kind of missleading,
     because it could be either a file or folder, but since we use recursion
     all the time, it's the temp selution as for now
+
+    Reason why I use jsonPath instead of id as the identifier for lastClickNode is that
+    we might need to add rename feature, id can't be renamed once it created
 
     TODO:
         - better comment
@@ -13,10 +16,12 @@ import { types, getEnv, getRelativePath, resolvePath, tryResolve, getSnapshot, g
             - option 2: hard coding
             fuck me...
         - scroll to node after refresh
-        - error try catch
         - first time writting file folder, what a mess...
         - reorganize when all things settled
         - Notification for illegal dirname input, ex: dirname start with number bring render issue
+        - don't allow same name mkdir/newFile
+        - rename
+        - drag & drop
 */
 
 let FileViewRef
@@ -38,7 +43,7 @@ const directory = types
 const fileStore = types
     .model('file',{
         directory: types.maybe(directory),
-        fileStoreReady: false,
+        isFileStoreReady: false,
         // currentOpen: '',
         lastClick: '',
         tmpLastClick: '',
@@ -81,7 +86,7 @@ const fileStore = types
             treejson.children.push(home)
 
             self.directory = directory.create(treejson)
-            self.fileStoreReady = true
+            self.isFileStoreReady = true
 
             self.directory.children.forEach(c => {
                 if(c.name === home.name){
@@ -94,13 +99,13 @@ const fileStore = types
         setDirectory(treejson){
             treejson.isExpend = true
             self.directory = directory.create(treejson)
-            self.fileStoreReady = true
+            self.isFileStoreReady = true
         },
         getDirectory(){
             return self.directory
         },
-        isFileStoreReady(){
-            return self.fileStoreReady
+        getIsFileStoreReady(){
+            return self.isFileStoreReady
         },
         handleClick(file){
             if(file.isNameEdit){
@@ -144,7 +149,7 @@ const fileStore = types
         },
         refresh(){
             const ev = getEnv(self)
-            self.fileStoreReady = false
+            self.isFileStoreReady = false
             const tmpExpands = getSnapshot(self.folderExpandCollec)
             // console.log(tmpExpands)
             const tmpCurrent = self.lastClick
@@ -158,7 +163,7 @@ const fileStore = types
             )
         },
         mkdir1(){
-            const { PATH, PARENT } = self.getRelativePosition()
+            const { PATH, PARENT } = self.getLastClickRelativePosition()
             self.setNewNode(PATH, PARENT, 'folder', 'tmpFolder')
         },
         /* TODO: handle newDir of the same name */
@@ -175,22 +180,22 @@ const fileStore = types
                 }
                 self.handleNewTagInputDelete()
 
-                const { PATH, PARENT } = self.getRelativePosition()
+                const { PATH, PARENT } = self.getLastClickRelativePosition()
                 self.setNewNode(PATH, PARENT, 'folder', tmpDir)
 
                 NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
                 self.lastClickNode.isNameEdit = false
 
                 const ev = getEnv(self)
-                // self.fileStoreReady = false
-                // ev.os.exeExitback('mkdir ' + newDir.id, self.refresh)
+                // self.isFileStoreReady = false
+                // ev.os.exeExitback('mkdir ' + self.lastClickNode.id, self.refresh)
                 ev.os.exeExitback('mkdir ' + self.lastClickNode.id, () => {})
             }else if(e.keyCode === 27){
                 self.handleNewTagInputDelete()
             }
         },
         newFile1(){
-            const { PATH, PARENT } = self.getRelativePosition()
+            const { PATH, PARENT } = self.getLastClickRelativePosition()
             self.setNewNode(PATH, PARENT, 'file', 'tmpFile')
         },
         newFile2(e){
@@ -206,7 +211,7 @@ const fileStore = types
                 }
                 self.handleNewTagInputDelete()
 
-                const { PATH, PARENT } = self.getRelativePosition()
+                const { PATH, PARENT } = self.getLastClickRelativePosition()
                 self.setNewNode(PATH, PARENT, 'file', tmpFile)
 
                 NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
@@ -238,7 +243,9 @@ const fileStore = types
         },
         collapseAll(){
             self.folderExpandCollec.forEach(c => {
-                resolvePath(self.directory, c).isExpend = false
+                try {
+                    resolvePath(self.directory, c).isExpend = false
+                } catch(e){}
             })
             self.lastClickNode.isCurrent = false
             self.folderExpandCollec = []
@@ -271,16 +278,16 @@ const fileStore = types
         getParentExpande(lastNode){
             if(hasParent(lastNode, 2)){
                 const parent = getParent(lastNode, 2)
-                    if(!parent.isExpend){
-                        parent.isExpend = true
-                        self.folderExpandCollec.push(getRelativePath(self.directory, parent))
-                    }
-                    if(hasParent(parent, 2)){
-                        self.getParentExpande(parent)
-                    }
+                if(!parent.isExpend){
+                    parent.isExpend = true
+                    self.folderExpandCollec.push(getRelativePath(self.directory, parent))
+                }
+                if(hasParent(parent, 2)){
+                    self.getParentExpande(parent)
+                }
             }
         },
-        getRelativePosition(){
+        getLastClickRelativePosition(){
             let PATH
             let PARENT
             if(self.lastClick !== ''){
@@ -353,6 +360,9 @@ const fileStore = types
         },
         getNewTagInputRef(){
             return NewTagInputRef
+        },
+        getNodeById(ID){
+            return resolveIdentifier(getType(self.directory), self.directory, ID)
         }
     }))
 

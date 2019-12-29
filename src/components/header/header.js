@@ -2,6 +2,7 @@ import React from "react"
 import { observer } from 'mobx-react-lite'
 import { useStore } from '../../hooks/useStore'
 import { ReactSVG } from 'react-svg'
+
 const Tab = observer(({ tab }) => {
     const store = useStore()
 

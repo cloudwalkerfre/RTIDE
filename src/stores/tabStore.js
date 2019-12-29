@@ -1,4 +1,4 @@
-import { types, getEnv, getRelativePath, resolvePath, resolveIdentifier, getType } from 'mobx-state-tree';
+import { types, getEnv, getRelativePath, resolvePath } from 'mobx-state-tree';
 import { version } from 'react';
 
 /*
@@ -68,7 +68,7 @@ const tabStore = types.model('tabs', {
                 )
                 // console.log(tab.id)
                 try {
-                    const tmpNodeInFileView = resolveIdentifier(getType(ev.file.directory), ev.file.directory, tab.id)
+                    const tmpNodeInFileView = ev.file.getNodeById(tab.id)
                     ev.file.setLastClick(getRelativePath(ev.file.directory, tmpNodeInFileView))
                 } catch (error) {
                     console.log(error)
@@ -97,6 +97,13 @@ const tabStore = types.model('tabs', {
                         () => ev.editor.newMono(catReturn, tmpNewCurrent.id),
                         (string) => catReturn = string
                     )
+
+                    try {
+                        const tmpNodeInFileView = ev.file.getNodeById(tmpNewCurrent.id)
+                        ev.file.setLastClick(getRelativePath(ev.file.directory, tmpNodeInFileView))
+                    } catch (error) {
+                        console.log(error)
+                    }
                 }else{
                     const tmpLastNode = resolvePath(self.tabs, self.current)
                     self.tabs.splice( index, 1 )

@@ -25,12 +25,20 @@ const InputTag = observer(({ file }) =>{
 
 const NameTag = observer(({ file, className }) => {
     const store = useStore()
+    const nameTagRef = React.createRef()
+
+    React.useEffect(() => {
+        if(file.isCurrent){
+            store.file.getFileViewRef().current.scrollTo(0, nameTagRef.current.offsetTop - 70)
+        }
+    }, [file.isCurrent])
 
     return (
         <div
             key={ Math.random() }
             className={ file.isCurrent ? className + ' name-tag-hover' : className }
             onClick={() => store.file.handleClick(file) }
+            ref={ nameTagRef }
         >
             <IconTag file={ file } />
             <div className='file-name-tag' >
@@ -82,7 +90,7 @@ const FileView = observer(() => {
 
     return (
         <div className='fileview' ref={ fileviewRef } >
-            { store.file.fileStoreReady && FileRecur(store.file.directory)   }
+            { store.file.isFileStoreReady && FileRecur(store.file.directory)   }
         </div>
     )
 })

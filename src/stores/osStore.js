@@ -293,7 +293,7 @@ const osStore = types
             }
         },
         termWrite(out){
-            if(out && out !== undefined){
+            if(out){
                 xterm.writeln('')
                 const tmpString = outStyled(out.toString().replace(/\n/g, '\r\n'))
                 xterm.writeln(new Buffer(tmpString))
