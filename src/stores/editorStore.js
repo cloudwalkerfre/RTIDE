@@ -9,7 +9,7 @@ const editorStore = types.model('editor', {
         language: '',
         value: '',
         initialValue: '',
-        pathName: '',
+        id: '',
         isEdited: false
     }).actions(self => ({
         setEditorReady(){
@@ -21,6 +21,9 @@ const editorStore = types.model('editor', {
                 self.value = newValue
             }
         },
+        setIsEdited(edit){
+            self.isEdited = edit
+        },
         getValue(){
             return self.value
         },
@@ -30,18 +33,24 @@ const editorStore = types.model('editor', {
         setEditorInstance(ins){
             EditorInstance = ins
         },
-        newMono(str, pathName){
+        newMono(str, id, cached){
+            const ev = getEnv(self)
+            ev.tabs.setMonoViewState(self.id, EditorInstance.getModel(), EditorInstance.saveViewState())
+
             if(self.isEdited){
-                const ev = getEnv(self)
-                ev.os.exeExitback('echo "' + self.value + '" > ' + self.pathName,
-                    () => { console.log(self.pathName + ' saved!') }
+                ev.os.exeExitback('echo "' + self.value + '" > ' + self.id,
+                    () => { console.log(self.id + ' saved!') }
                 )
             }
-            self.value = str || ''
             self.initialValue = str
-            self.pathName = pathName
+            self.id = id
             self.isEdited = false
-            self.language = regexFileType(pathName) || 'javascript'
+            self.value = str || ''
+            self.language = regexFileType(id) || 'javascript'
+            if(cached){
+                EditorInstance.setModel(cached.model)
+                EditorInstance.restoreViewState(cached.state)
+            }
             if(EditorInstance){
                 EditorInstance.focus()
             }

@@ -6,6 +6,8 @@ import { version } from 'react';
     because there might be some tab type other than mono-editor - e.g, MarkDown page
 */
 
+const monoViewState = {}
+
 const tab = types.model('tab', {
         id: types.string,
         name: types.string,
@@ -29,7 +31,7 @@ const tabStore = types.model('tabs', {
         addTab(tabJson, string){
             const ev = getEnv(self)
             const add = () => {
-                ev.editor.newMono(string, tabJson.id)
+                ev.editor.newMono(string, tabJson.id, undefined)
                 tabJson.isCurrent = true
                 const newTab = tab.create(tabJson)
                 self.tabs.push(newTab)
@@ -48,7 +50,7 @@ const tabStore = types.model('tabs', {
                     tabSearch[0].isCurrent = true
                     self.currentNode.isCurrent = false
                     self.current = getRelativePath(self.tabs, tabSearch[0])
-                    ev.editor.newMono(string, tabJson.id)
+                    ev.editor.newMono(string, tabJson.id, self.getMonoCatched(tabJson.id))
                 }else{
                     add()
                 }
@@ -63,7 +65,7 @@ const tabStore = types.model('tabs', {
 
                 let catReturn = ''
                 ev.os.exeCallback('cat '+ tab.id,
-                    () => ev.editor.newMono(catReturn, tab.id),
+                    () => ev.editor.newMono(catReturn, tab.id, self.getMonoCatched(tab.id)),
                     (string) => catReturn = string
                 )
                 // console.log(tab.id)
@@ -94,7 +96,7 @@ const tabStore = types.model('tabs', {
 
                     let catReturn = ''
                     ev.os.exeCallback('cat '+ tmpNewCurrent.id,
-                        () => ev.editor.newMono(catReturn, tmpNewCurrent.id),
+                        () => ev.editor.newMono(catReturn, tmpNewCurrent.id, self.getMonoCatched(tmpNewCurrent.id)),
                         (string) => catReturn = string
                     )
 
@@ -110,6 +112,18 @@ const tabStore = types.model('tabs', {
                     self.current = getRelativePath(self.tabs, tmpLastNode)
                 }
             }
+        },
+        setMonoViewState(id, model, state){
+            monoViewState[id] = {}
+            monoViewState[id].model = model
+            monoViewState[id].state = state
+        },
+        getMonoCatched(id){
+            // if (id in monoViewState){
+            //     return {model: monoViewState[id].model, state: monoViewState[id].state}
+            // }else{
+                return undefined
+            // }
         }
     }))
 

@@ -17,13 +17,13 @@ const OperationBar = observer(() => {
             <div
                 className='operation-bar'
             >
-                { store.py.isPyodideReady ?
+                { store.py.isPyodideReady && store.file.isFileStoreReady ?
                     <>
-                          Run Python   
+                        { 'Run Python' + '\u00A0'.repeat(3) }
                         <ReactSVG src='icons/start.svg' onClick={ handleRunPython } />
                     </> :
                     <>
-                          Python loading...
+                        { 'Python loading...' }
                     </>
                 }
             </div>
