@@ -116,11 +116,15 @@ const fileStore = types
                 if(self.lastClick !== jsonPath){
                     const ev = getEnv(self)
 
-                    let catReturn = ''
-                    ev.os.exeCallback('cat '+ file.path + '/' + file.name,
-                        () => ev.tabs.addTab({id: file.id, name: file.name, path: file.path}, catReturn),
-                        (string) => catReturn = string
-                    )
+                    if(file.isOpen){
+                        ev.tabs.addTab({id: file.id, name: file.name, path: file.path}, '')
+                    }else{
+                        let catReturn = ''
+                        ev.os.exeCallback('cat '+ file.path + '/' + file.name,
+                            () => ev.tabs.addTab({id: file.id, name: file.name, path: file.path}, catReturn),
+                            (string) => catReturn = string
+                        )
+                    }
                     file.isCurrent = true
                     if(file.lastClick !== ''){
                         self.lastClickNode.isCurrent = false
@@ -224,6 +228,12 @@ const fileStore = types
                 self.handleNewTagInputDelete()
             }
         },
+        saveFile(str, id){
+            const ev = getEnv(self)
+            ev.os.exeExitback('echo "' + str + '" > ' + id,
+                () => { console.log(id + ' saved!') }
+            )
+        },
         handleNewTagInputDelete(){
             if(NewTagInputRef.current !== undefined){
                 NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
@@ -314,9 +324,15 @@ const fileStore = types
         },
         setNewNode(PATH, PARENT, TYPE, NAME){
             let newNode
+            let ID
+            if(PATH === '/'){
+                ID = PATH + NAME
+            }else{
+                ID = PATH + '/' + NAME
+            }
             if(TYPE === 'file'){
                 newNode = directory.create({
-                    id: PATH + '/' + NAME,
+                    id: ID,
                     name: NAME,
                     path: PATH,
                     type: 'file',
@@ -327,7 +343,7 @@ const fileStore = types
                 })
             }else{
                 newNode = directory.create({
-                    id: PATH + '/' + NAME,
+                    id: ID,
                     name: NAME,
                     path: PATH,
                     type: 'dir',

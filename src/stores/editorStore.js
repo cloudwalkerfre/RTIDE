@@ -1,13 +1,16 @@
-import { types, getEnv } from 'mobx-state-tree'
+import { types, getEnv, getSnapshot } from 'mobx-state-tree'
 import { regexFileType } from '../util/util'
 
 let EditorInstance
+let MonacoInstance
+//TODO: Add cache size control or model GC
+const monoCache = {}
 
 const editorStore = types.model('editor', {
         isEditorReady: false,
         height: '60vh',
-        language: '',
-        value: '',
+        // language: '',
+        // value: '',
         initialValue: '',
         id: '',
         isEdited: false
@@ -15,44 +18,60 @@ const editorStore = types.model('editor', {
         setEditorReady(){
             self.isEditorReady = true
         },
-        setValue(newValue){
-            if(newValue !== self.initialValue){
-                self.isEdited = true
-                self.value = newValue
-            }
-        },
         setIsEdited(edit){
             self.isEdited = edit
-        },
-        getValue(){
-            return self.value
         },
         getIsEdited(){
             return self.isEdited
         },
+        getCurrentEditorValue(){
+            return EditorInstance.getValue()
+        },
+        getEditorValue(id){
+            return monoCache[id].model.getValue()
+        },
         setEditorInstance(ins){
             EditorInstance = ins
         },
-        newMono(str, id, cached){
+        setMonacoInstance(ins){
+            MonacoInstance = ins
+        },
+        newMono(str, id){
             const ev = getEnv(self)
-            ev.tabs.setMonoViewState(self.id, EditorInstance.getModel(), EditorInstance.saveViewState())
 
-            if(self.isEdited){
-                ev.os.exeExitback('echo "' + self.value + '" > ' + self.id,
-                    () => { console.log(self.id + ' saved!') }
-                )
+            if(self.id !== ''){
+                self.setMonoCache(self.id, EditorInstance.getModel(), EditorInstance.saveViewState())
             }
-            self.initialValue = str
-            self.id = id
+            if(id in monoCache){
+                EditorInstance.setModel(monoCache[id].model)
+                EditorInstance.restoreViewState(monoCache[id].state)
+            }else{
+                const newModel = MonacoInstance.editor.createModel(str, regexFileType(id) || 'javascript')
+                EditorInstance.setModel(newModel)
+                self.setMonoCache(id, newModel, null)
+            }
             self.isEdited = false
-            self.value = str || ''
-            self.language = regexFileType(id) || 'javascript'
-            if(cached){
-                EditorInstance.setModel(cached.model)
-                EditorInstance.restoreViewState(cached.state)
-            }
+            self.id = id
+
             if(EditorInstance){
                 EditorInstance.focus()
+            }
+        },
+        getIsEditorEdited(id){
+            return monoCache[id].model.getVersionId() !== 1
+        },
+        setMonoCache(id, model, state){
+            if(!(id in monoCache)){
+                monoCache[id] = {}
+            }
+            monoCache[id].model = model
+            monoCache[id].state = state
+        },
+        getMonoCached(id){
+            if (id in monoCache){
+                return {model: monoCache[id].model, state: monoCache[id].state}
+            }else{
+                return undefined
             }
         }
     }))

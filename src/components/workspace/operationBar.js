@@ -7,7 +7,7 @@ const OperationBar = observer(() => {
     const store = useStore()
 
     const handleRunPython = async () => {
-        let pr = await store.py.run(store.editor.value)
+        let pr = await store.py.run(store.editor.getCurrentEditorValue())
         store.os.termWrite(pr)
         console.log(pr)
     }

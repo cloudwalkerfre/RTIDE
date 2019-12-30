@@ -6,7 +6,6 @@ import { version } from 'react';
     because there might be some tab type other than mono-editor - e.g, MarkDown page
 */
 
-const monoViewState = {}
 
 const tab = types.model('tab', {
         id: types.string,
@@ -31,7 +30,7 @@ const tabStore = types.model('tabs', {
         addTab(tabJson, string){
             const ev = getEnv(self)
             const add = () => {
-                ev.editor.newMono(string, tabJson.id, undefined)
+                ev.editor.newMono(string, tabJson.id)
                 tabJson.isCurrent = true
                 const newTab = tab.create(tabJson)
                 self.tabs.push(newTab)
@@ -50,35 +49,36 @@ const tabStore = types.model('tabs', {
                     tabSearch[0].isCurrent = true
                     self.currentNode.isCurrent = false
                     self.current = getRelativePath(self.tabs, tabSearch[0])
-                    ev.editor.newMono(string, tabJson.id, self.getMonoCatched(tabJson.id))
+                    ev.editor.newMono(string, tabJson.id)
                 }else{
                     add()
                 }
             }
         },
         handleClick(tab){
+            const ev = getEnv(self)
             if(tab !== self.currentNode){
-                const ev = getEnv(self)
                 tab.isCurrent = true
                 self.currentNode.isCurrent = false
                 self.current = getRelativePath(self.tabs, tab)
-
-                let catReturn = ''
-                ev.os.exeCallback('cat '+ tab.id,
-                    () => ev.editor.newMono(catReturn, tab.id, self.getMonoCatched(tab.id)),
-                    (string) => catReturn = string
-                )
-                // console.log(tab.id)
-                try {
-                    const tmpNodeInFileView = ev.file.getNodeById(tab.id)
-                    ev.file.setLastClick(getRelativePath(ev.file.directory, tmpNodeInFileView))
-                } catch (error) {
-                    console.log(error)
-                }
+                ev.editor.newMono('', tab.id)
+            }
+            try {
+                const tmpNodeInFileView = ev.file.getNodeById(tab.id)
+                ev.file.setLastClick(getRelativePath(ev.file.directory, tmpNodeInFileView))
+            } catch (error) {
+                console.log(error)
             }
         },
         handleClose(tab){
             if(self.tabs.length > 1){
+                const ev = getEnv(self)
+
+                if(ev.editor.getIsEditorEdited(tab.id)){
+                    const str = ev.editor.getEditorValue(tab.id)
+                    ev.file.saveFile(str, tab.id)
+                }
+
                 let index
                 const tabSearch = self.tabs.map((t, i) => {
                     if(t.id === tab.id){
@@ -87,18 +87,12 @@ const tabStore = types.model('tabs', {
                     }
                 })
                 if(self.tabs[index].isCurrent){
-                    const ev = getEnv(self)
-
                     const tmpNewCurrent = self.tabs[index === 0 ? 1 : index - 1]
                     self.tabs.splice( index, 1 )
                     self.current = getRelativePath(self.tabs, tmpNewCurrent)
                     tmpNewCurrent.isCurrent = true
 
-                    let catReturn = ''
-                    ev.os.exeCallback('cat '+ tmpNewCurrent.id,
-                        () => ev.editor.newMono(catReturn, tmpNewCurrent.id, self.getMonoCatched(tmpNewCurrent.id)),
-                        (string) => catReturn = string
-                    )
+                    ev.editor.newMono('', tmpNewCurrent.id)
 
                     try {
                         const tmpNodeInFileView = ev.file.getNodeById(tmpNewCurrent.id)
@@ -112,18 +106,6 @@ const tabStore = types.model('tabs', {
                     self.current = getRelativePath(self.tabs, tmpLastNode)
                 }
             }
-        },
-        setMonoViewState(id, model, state){
-            monoViewState[id] = {}
-            monoViewState[id].model = model
-            monoViewState[id].state = state
-        },
-        getMonoCatched(id){
-            // if (id in monoViewState){
-            //     return {model: monoViewState[id].model, state: monoViewState[id].state}
-            // }else{
-                return undefined
-            // }
         }
     }))
 
