@@ -55,6 +55,9 @@ const fileStore = types
         }
     }))
     .actions(self => ({
+        /*
+            Demo phase temp example, will have server fetch data once finished
+        */
         init(tree){
             const ev = getEnv(self)
             ev.os.exeExitback('mkdir home && touch home/test.py && echo "import sys\nsys.version" > home/test.py', () => {})
@@ -94,7 +97,7 @@ const fileStore = types
                     self.lastClick = getRelativePath(self.directory, c.children[0])
                 }
             })
-            ev.tabs.addTab({id: '/home/test.py', name: 'test.py', path: '/home'}, 'import sys\nsys.version')
+            ev.tabs.addTab({id: '/home/test.py', name: 'test.py', path: '/home'}, 'import sys\nsys.version\n\n#import 3rd party package will take sometime to load\n#import numpy as np\n#np.array([1, 2, 3])')
         },
         setDirectory(treejson){
             treejson.isExpend = true

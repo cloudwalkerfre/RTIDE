@@ -7,7 +7,9 @@ const OperationBar = observer(() => {
     const store = useStore()
 
     const handleRunPython = async () => {
+        store.py.setIsPyodideBusy(true)
         let pr = await store.py.run(store.editor.getCurrentEditorValue())
+        store.py.setIsPyodideBusy(false)
         store.os.termWrite(pr)
         console.log(pr)
     }
@@ -19,8 +21,16 @@ const OperationBar = observer(() => {
             >
                 { store.py.isPyodideReady && store.file.isFileStoreReady ?
                     <>
-                        { 'Run Python' + '\u00A0'.repeat(3) }
-                        <ReactSVG src='icons/start.svg' onClick={ handleRunPython } />
+                        { store.py.isPyodideBusy ?
+                        <>
+                            { 'Python Running...' }
+                            <ReactSVG src='icons/start.svg' onClick={ handleRunPython } />
+                        </>:
+                        <>
+                            { 'Run Python' + '\u00A0'.repeat(3) }
+                            <ReactSVG src='icons/start.svg' onClick={ handleRunPython } />
+                        </>
+                        }
                     </> :
                     <>
                         { 'Python loading...' }

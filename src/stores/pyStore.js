@@ -20,15 +20,19 @@ const pyodide = wp.pyodide
 
 const pyStore = types
     .model("py", {
-        isPyodideReady : false
+        isPyodideReady : false,
+        isPyodideBusy: false
     })
     .actions(self => ({
         setPyodideReady(){
             self.isPyodideReady = true
         },
+        setIsPyodideBusy(busy){
+            self.isPyodideBusy = busy
+        },
         run(data){
             if(self.isPyodideReady){
-                return pyodide.runPython(data)
+                return pyodide.runPythonAsync(data)
             }else{
                 // throw new Error('Pyodide Not Ready!')
                 console.error('Pyodide Not Ready!')
