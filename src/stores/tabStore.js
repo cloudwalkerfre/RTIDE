@@ -1,4 +1,4 @@
-import { types, getEnv, getRelativePath, resolvePath } from 'mobx-state-tree';
+import { types, getEnv, getRelativePath, resolvePath, resolveIdentifier } from 'mobx-state-tree';
 import { version } from 'react';
 
 /*
@@ -106,6 +106,22 @@ const tabStore = types.model('tabs', {
                     self.current = getRelativePath(self.tabs, tmpLastNode)
                 }
             }
+        },
+        refresh(){
+            const ev = getEnv(self)
+            self.tabs = self.tabs.filter((t, index) => {
+                const tmpNodeInFileView = ev.file.getNodeById(t.id)
+                if(!tmpNodeInFileView){
+                    const tmpNewCurrent = self.tabs[index === 0 ? 1 : index - 1]
+                    self.current = getRelativePath(self.tabs, tmpNewCurrent)
+                    tmpNewCurrent.isCurrent = true
+                    ev.editor.newMono('', tmpNewCurrent.id)
+                    ev.file.setLastClick(getRelativePath(ev.file.directory, ev.file.getNodeById(tmpNewCurrent.id)))
+                    return false
+                }else{
+                    return true
+                }
+            })
         }
     }))
 

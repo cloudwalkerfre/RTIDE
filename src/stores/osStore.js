@@ -197,8 +197,8 @@ const osStore = types
     .actions(self => ({
         osBoot(){
             self.isKernelBusy = true
-            boot(self.initKernel)
-            self.welcome()
+            boot(self.initReactFileView)
+            self.termWelcome()
         },
         setKernelReady(){
             self.isKernelReady = true
@@ -206,19 +206,19 @@ const osStore = types
         setIsKernelBusy(busy){
             self.isKernelBusy = busy
         },
-        initKernel(){
-            const env = getEnv(self)
+        initReactFileView(){
+            const ev = getEnv(self)
             self.setKernelReady()
             /*
                 We boot fileStore's directory here as well
             */
             self.exeCallback('treejson',
                 () => {},
-                env.file.init
+                ev.file.init
             )
             console.log(cmdStyled('Browsix Booted!'))
         },
-        welcome(){
+        termWelcome(){
             const ct = setInterval(() => {
                 if(self.isOSXtermReady()){
                     xterm.write(ansi.erase.inLine(2) + '\r')

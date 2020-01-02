@@ -63,41 +63,16 @@ const fileStore = types
             ev.os.exeExitback('mkdir home && touch home/test.py && echo "import sys\nsys.version" > home/test.py', () => {})
 
             const treejson = JSON.parse(tree)
-            treejson.isExpend = true
-            const home = {
-                id: '/home',
-                name: 'home',
-                path: '/',
-                type: 'dir',
-                children: [],
-                isCurrent: false,
-                isOpen: false,
-                isExpend: true,
-                isNameEdit: false
-            }
-            const testpy = {
-                id: '/home/test.py',
-                name: 'test.py',
-                path: '/home',
-                type: 'file',
-                isCurrent: true,
-                isOpen: true,
-                isExpend: false,
-                isNameEdit: false
-            }
-            home.children.push(testpy)
-            treejson.children.push(home)
-
             self.directory = directory.create(treejson)
+
+            self.setNewNode('/', self.directory.children, 'folder', 'home')
+            self.setNewNode('/home', self.lastClickNode.children, 'file', 'test.py')
             self.isFileStoreReady = true
 
-            self.directory.children.forEach(c => {
-                if(c.name === home.name){
-                    self.folderExpandCollec.push(getRelativePath(self.directory, c))
-                    self.lastClick = getRelativePath(self.directory, c.children[0])
-                }
-            })
-            ev.tabs.addTab({id: '/home/test.py', name: 'test.py', path: '/home'}, 'import sys\nsys.version\n\n#import 3rd party package will take sometime to load\n#import numpy as np\n#np.array([1, 2, 3])')
+            ev.tabs.addTab({id: '/home/test.py', name: 'test.py', path: '/home'},
+            'import sys\nsys.version\n\n' +
+            '#import 3rd party package will take sometime to load\n' +
+            '#import numpy as np\n#np.array([1, 2, 3])')
         },
         setDirectory(treejson){
             treejson.isExpend = true
@@ -164,6 +139,7 @@ const fileStore = types
                 () => {},
                 (tree) => {
                     self.setDirectory(JSON.parse(tree))
+                    // ev.tabs.refresh()
                     self.setFolderExpand(tmpExpands)
                     self.setLastClick(tmpCurrent)
                 }
@@ -171,27 +147,26 @@ const fileStore = types
         },
         mkdir1(){
             const { PATH, PARENT } = self.getLastClickRelativePosition()
-            self.setNewNode(PATH, PARENT, 'folder', 'tmpFolder')
+            self.setNewNode(PATH, PARENT, 'folder', 'tmpFolder', true)
         },
         /* TODO: handle newDir of the same name */
         mkdir2(e){
             if(e.keyCode === 13 && e.target.value !== ''){
-                const tmpDir = e.target.value
+                const newFolderName = e.target.value
                 /*
-                    dirname start with number bring render issue
-                    TODO: Notification
+                    - nodeName start with number bring render issue
+                    - name contains '/' is illegal in unix file system
+                    - don't allow space
+                    TODO: Illegal name Notification
                 */
-                if(tmpDir.match(/^\d|\u0020+|\//g) !== null){
+                if(newFolderName.match(/^\d|\u0020+|\//g) !== null){
                     self.handleNewTagInputDelete()
                     return
                 }
                 self.handleNewTagInputDelete()
 
                 const { PATH, PARENT } = self.getLastClickRelativePosition()
-                self.setNewNode(PATH, PARENT, 'folder', tmpDir)
-
-                NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
-                self.lastClickNode.isNameEdit = false
+                self.setNewNode(PATH, PARENT, 'folder', newFolderName)
 
                 const ev = getEnv(self)
                 // self.isFileStoreReady = false
@@ -203,26 +178,25 @@ const fileStore = types
         },
         newFile1(){
             const { PATH, PARENT } = self.getLastClickRelativePosition()
-            self.setNewNode(PATH, PARENT, 'file', 'tmpFile')
+            self.setNewNode(PATH, PARENT, 'file', 'tmpFile', true)
         },
         newFile2(e){
             if(e.keyCode === 13 && e.target.value !== ''){
-                const tmpFile = e.target.value
+                const newFileName = e.target.value
                 /*
-                    filename start with number bring render issue
-                    TODO: Notification
+                    - nodeName start with number bring render issue
+                    - name contains '/' is illegal in unix file system
+                    - don't allow space
+                    TODO: Illegal name Notification
                 */
-                if(tmpFile.match(/^\d|\u0020+|\//g) !== null){
+                if(newFileName.match(/^\d|\u0020+|\//g) !== null){
                     self.handleNewTagInputDelete()
                     return
                 }
                 self.handleNewTagInputDelete()
 
                 const { PATH, PARENT } = self.getLastClickRelativePosition()
-                self.setNewNode(PATH, PARENT, 'file', tmpFile)
-
-                NewTagInputRef.current.removeEventListener('blur', self.handleNewTagInputDelete)
-                self.lastClickNode.isNameEdit = false
+                self.setNewNode(PATH, PARENT, 'file', newFileName)
 
                 const ev = getEnv(self)
                 ev.os.exeExitback('touch ' + self.lastClickNode.id, () => {})
@@ -277,10 +251,10 @@ const fileStore = types
             self.isFileStoreReady = true
         },
         setLastClick(last){
-            if(self.lastClick !== ''){
-                self.lastClickNode.isCurrent = false
-            }
             try {
+                if(self.lastClick !== ''){
+                    self.lastClickNode.isCurrent = false
+                }
                 const lastNode = resolvePath(self.directory, last)
                 lastNode.isCurrent = true
                 self.lastClick = last
@@ -325,7 +299,7 @@ const fileStore = types
             }
             return {PATH: PATH, PARENT: PARENT}
         },
-        setNewNode(PATH, PARENT, TYPE, NAME){
+        setNewNode(PATH, PARENT, TYPE, NAME, isNameEdit){
             let newNode
             let ID
             if(PATH === '/'){
@@ -342,7 +316,7 @@ const fileStore = types
                     isCurrent: true,
                     isOpen: false,
                     isExpend: false,
-                    isNameEdit: true
+                    isNameEdit: isNameEdit || false
                 })
             }else{
                 newNode = directory.create({
@@ -353,7 +327,7 @@ const fileStore = types
                     isCurrent: true,
                     isOpen: false,
                     isExpend: true,
-                    isNameEdit: true,
+                    isNameEdit: isNameEdit || false,
                     children: []
                 })
             }
@@ -367,6 +341,7 @@ const fileStore = types
             if(TYPE === 'folder'){
                 self.folderExpandCollec.push(newNodeJsonPath)
             }
+            self.getParentExpande(self.lastClickNode)
         },
         setFileViewRef(ref){
             FileViewRef = ref
