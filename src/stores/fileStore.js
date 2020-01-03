@@ -207,9 +207,11 @@ const fileStore = types
         },
         saveFile(str, id){
             const ev = getEnv(self)
-            ev.os.exeExitback('echo "' + str + '" > ' + id,
-                () => { console.log(id + ' saved!') }
-            )
+            // console.log(str.replace('"', '\"'))
+            // ev.os.exeExitback('echo "' + str + '" > ' + id,
+            //     () => { console.log(id + ' saved!') }
+            // )
+            ev.os.getFs().writeFile(id, str, () => console.log(id + ' saved!'))
         },
         handleNewTagInputDelete(){
             if(NewTagInputRef.current !== undefined){
@@ -299,7 +301,7 @@ const fileStore = types
             }
             return {PATH: PATH, PARENT: PARENT}
         },
-        setNewNode(PATH, PARENT, TYPE, NAME, isNameEdit){
+        setNewNode(PATH, PARENT, TYPE, NAME, isNameEdit = false){
             let newNode
             let ID
             if(PATH === '/'){
@@ -316,7 +318,7 @@ const fileStore = types
                     isCurrent: true,
                     isOpen: false,
                     isExpend: false,
-                    isNameEdit: isNameEdit || false
+                    isNameEdit: isNameEdit
                 })
             }else{
                 newNode = directory.create({
@@ -327,7 +329,7 @@ const fileStore = types
                     isCurrent: true,
                     isOpen: false,
                     isExpend: true,
-                    isNameEdit: isNameEdit || false,
+                    isNameEdit: isNameEdit,
                     children: []
                 })
             }

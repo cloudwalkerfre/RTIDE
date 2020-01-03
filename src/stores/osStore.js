@@ -303,6 +303,9 @@ const osStore = types
         isOSXtermReady(){
             return self.isKernelReady && self.isXtermReady
         },
+        getFs(){
+            return kernel.fs
+        },
         keyCallback({key, domEvent}){
             if(!self.isOSXtermReady()){
                 xterm.writeln('OS not ready!')
